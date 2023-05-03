@@ -1,0 +1,5 @@
+name: "remote-control-tg-bot"
+logger:
+  level: "debug"
+  caller: false
+  format: "pretty"
