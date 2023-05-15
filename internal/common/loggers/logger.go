@@ -5,7 +5,7 @@ import (
 	"strings"
 	"time"
 
-	"github.com/c0dered273/automation-remote-controller/internal/configs"
+	"github.com/c0dered273/automation-remote-controller/internal/tg-bot/configs"
 	"github.com/rs/zerolog"
 	"github.com/rs/zerolog/pkgerrors"
 )

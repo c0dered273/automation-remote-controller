@@ -4,6 +4,7 @@ go 1.20
 
 require (
 	github.com/go-playground/validator/v10 v10.13.0
+	github.com/go-telegram-bot-api/telegram-bot-api/v5 v5.5.1
 	github.com/rs/zerolog v1.29.1
 	github.com/spf13/pflag v1.0.5
 	github.com/spf13/viper v1.15.0

@@ -1,7 +1,7 @@
 package configs
 
 import (
-	"github.com/c0dered273/automation-remote-controller/internal/validators"
+	"github.com/c0dered273/automation-remote-controller/internal/common/validators"
 	"github.com/go-playground/validator/v10"
 	"github.com/rs/zerolog"
 	"github.com/spf13/pflag"
