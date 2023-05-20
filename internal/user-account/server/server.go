@@ -31,6 +31,7 @@ type Services struct {
 	ClientService clients.ClientService
 }
 
+// NewServices настраивает сервисы
 func NewServices(config *configs.UserAccountConfig, logger zerolog.Logger) Services {
 	// Users
 	db, err := storage.NewConnection(config.DatabaseUri)
@@ -50,6 +51,7 @@ func NewServices(config *configs.UserAccountConfig, logger zerolog.Logger) Servi
 	}
 }
 
+// ReadConfig читает и валидирует конфигурацию приложения
 func ReadConfig() *configs.UserAccountConfig {
 	logger := loggers.NewDefaultLogger(LogWriter)
 	validator := validators.NewValidatorWithTagFieldName("mapstructure", logger)
@@ -61,6 +63,7 @@ func ReadConfig() *configs.UserAccountConfig {
 	return config
 }
 
+// NewEchoServer возвращает настроенный сервер
 func NewEchoServer(s Services, config *configs.UserAccountConfig, logger zerolog.Logger, validator validators.Validator) *echo.Echo {
 	caKeyPair, err := auth.LoadKeyPair(config.CertFile, config.PKeyFile)
 	if err != nil {

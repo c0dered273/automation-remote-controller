@@ -21,7 +21,7 @@ import (
 func main() {
 	config := server.ReadConfig()
 	logger := loggers.NewLogger(server.LogWriter, config.Logger, "user-account-api")
-	validator := validators.NewValidator(logger)
+	validator := validators.NewValidatorWithTagFieldName("json", logger)
 	services := server.NewServices(config, logger)
 	e := server.NewEchoServer(services, config, logger, validator)
 

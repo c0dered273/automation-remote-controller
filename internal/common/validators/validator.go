@@ -10,11 +10,13 @@ import (
 	"github.com/rs/zerolog"
 )
 
+// Validator адаптер валидатора для echo
 type Validator struct {
 	validate *validator.Validate
 	logger   zerolog.Logger
 }
 
+// Validate проверяет структуру на соответствие ограничениям из тегов `validate`
 func (v Validator) Validate(s interface{}) error {
 	err := v.validate.Struct(s)
 	if err != nil {
@@ -33,13 +35,9 @@ func (v Validator) Validate(s interface{}) error {
 	return nil
 }
 
-func NewValidator(logger zerolog.Logger) Validator {
-	return Validator{
-		validate: validator.New(),
-		logger:   logger,
-	}
-}
-
+// NewValidatorWithTagFieldName конструктор валидатор
+// в параметре tagFieldName указывается структурный тег из которого валидатор будет брать имя проверяемого поля
+// нужно для более понятного логирования ошибок, если название полей, например json, отличается от имен полей структуры
 func NewValidatorWithTagFieldName(tagFieldName string, logger zerolog.Logger) Validator {
 	validate := validator.New()
 	validate.RegisterTagNameFunc(func(fld reflect.StructField) string {

@@ -12,6 +12,8 @@ const (
 	MaxConnLifetime = time.Minute
 )
 
+// NewConnection возвращает настроенное соединение в БД
+// используется драйвер pgx для PostgreSQL
 func NewConnection(uri string) (*sqlx.DB, error) {
 	db, err := sqlx.Connect("pgx", uri)
 	if err != nil {

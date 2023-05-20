@@ -9,9 +9,13 @@ import (
 	"github.com/jmoiron/sqlx"
 )
 
+// UserRepository описывает методы работы с сущностью пользователя
 type UserRepository interface {
+	// SaveUser Сохранение нового пользователя
 	SaveUser(ctx context.Context, user User) error
+	// FindByNameAndPassword поиск пользователя по имени и паролю
 	FindByNameAndPassword(ctx context.Context, name string, password string) (User, error)
+	// FindTGNameByUsername поиск пользователя по нику telegram
 	FindTGNameByUsername(ctx context.Context, name string) (string, error)
 }
 

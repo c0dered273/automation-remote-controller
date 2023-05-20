@@ -6,8 +6,11 @@ import (
 	"github.com/c0dered273/automation-remote-controller/internal/user-account/auth"
 )
 
+// UserService сервис обрабатывает запросы с пользователями
 type UserService interface {
+	// RegisterUser регистрация нового пользователя
 	RegisterUser(ctx context.Context, newUser NewUserRequest) error
+	// AuthUser аутентификация пользователя и выдача токена
 	AuthUser(ctx context.Context, authRequest UserAuthRequest, secret string) (UserAuthResponse, error)
 }
 

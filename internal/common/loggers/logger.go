@@ -21,11 +21,14 @@ func init() {
 	zerolog.SetGlobalLevel(zerolog.InfoLevel)
 }
 
+// NewDefaultLogger создает логгер с дефолтными настройками
+// нужен для на этапе инициализации сервиса, пока рабочие настройки еще не получены
 func NewDefaultLogger(w io.Writer) zerolog.Logger {
 	prettyOutput := zerolog.ConsoleWriter{Out: w, TimeFormat: time.RFC3339}
 	return zerolog.New(prettyOutput).With().Timestamp().Logger()
 }
 
+// NewLogger конструктор основного логгера
 func NewLogger(w io.Writer, loggerConfig configs.Logger, serviceName string) zerolog.Logger {
 	var logger zerolog.Logger
 
@@ -48,6 +51,7 @@ func NewLogger(w io.Writer, loggerConfig configs.Logger, serviceName string) zer
 	return logger.With().Str("appID", serviceName).Logger()
 }
 
+// EchoLogger обертка для адаптации zerolog к echo
 type EchoLogger struct {
 	output io.Writer
 	logger zerolog.Logger
@@ -178,6 +182,7 @@ func toString(j log.JSON) string {
 	return message
 }
 
+// NewEchoLogger конструктор для адаптера zerolog
 func NewEchoLogger(w io.Writer, prefix string, logger zerolog.Logger) *EchoLogger {
 	l := &EchoLogger{
 		output: w,
@@ -188,6 +193,7 @@ func NewEchoLogger(w io.Writer, prefix string, logger zerolog.Logger) *EchoLogge
 	return l
 }
 
+// RequestLoggerMiddleware настраивает middleware для логгирования запросов к серверу echo
 func RequestLoggerMiddleware(logger zerolog.Logger) func(next echo.HandlerFunc) echo.HandlerFunc {
 	return middleware.RequestLoggerWithConfig(middleware.RequestLoggerConfig{
 		LogHost:    true,

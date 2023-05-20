@@ -25,6 +25,7 @@ var (
 	x500UniqueIdentifier = asn1.ObjectIdentifier([]int{2, 5, 4, 45})
 )
 
+// JwtCustomClaims параметры которые хранятся jwt
 type JwtCustomClaims struct {
 	Username string `json:"username"`
 	jwt.RegisteredClaims
@@ -39,6 +40,7 @@ type CertKeyPair struct {
 	PKey any
 }
 
+// GenerateToken генерирует токен подписанный секретом
 func GenerateToken(username string, secret string) (string, error) {
 	claim := JwtCustomClaims{
 		Username: username,
@@ -56,6 +58,7 @@ func GenerateToken(username string, secret string) (string, error) {
 	return tokenString, nil
 }
 
+// GetJWTConfig возвращает настройки для middleware которое проверяет jwt у входящих запросов
 func GetJWTConfig(secret string) echojwt.Config {
 	return echojwt.Config{
 		NewClaimsFunc: func(c echo.Context) jwt.Claims {
@@ -65,6 +68,11 @@ func GetJWTConfig(secret string) echojwt.Config {
 	}
 }
 
+// GenerateCert генерирует пару сертификат/ключ для идентификации клиентского приложения
+// возвращает pem блоки с сертификатом X.509 v3 и rsa приватным ключом в кодировке PKCS #8
+// также в сертификат добавлены два объекта:
+// owner - содержит имя пользователя telegram, которое использует хозяин клиентского приложения
+// x500UniqueIdentifier - уникальный идентификатор клиентского приложения
 func GenerateCert(
 	caKeyPair CertKeyPair,
 	ownerName string,
@@ -134,6 +142,7 @@ func GenerateCert(
 	}, nil
 }
 
+// LoadKeyPair загружает с диска файлы сертификата и ключа и парсит их
 func LoadKeyPair(certFile string, pkeyFile string) (CertKeyPair, error) {
 	certPEMBytes, err := os.ReadFile(certFile)
 	if err != nil {
@@ -159,6 +168,7 @@ func LoadKeyPair(certFile string, pkeyFile string) (CertKeyPair, error) {
 	}, nil
 }
 
+// ParseCert парсит pem блок в структуру сертификата
 func ParseCert(certPEMBlock []byte) (*x509.Certificate, error) {
 	for {
 		var certDERBlock *pem.Block
@@ -179,6 +189,7 @@ func ParseCert(certPEMBlock []byte) (*x509.Certificate, error) {
 	return nil, errors.New("certificate not found")
 }
 
+// ParsePKey парсит pem блок в структуру приватного ключа
 func ParsePKey(pkeyPEMBlock []byte) (any, error) {
 	for {
 		var pkeyDERBlock *pem.Block

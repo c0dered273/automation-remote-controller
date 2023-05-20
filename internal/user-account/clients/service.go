@@ -12,7 +12,9 @@ import (
 	"github.com/jackc/pgx/v5/pgconn"
 )
 
+// ClientService сервис обрабатывает запросы с сущностями клиентских приложений
 type ClientService interface {
+	// NewClient сохраняет данные нового клиентского приложения и генерирует сертификат для идентификации клиента
 	NewClient(ctx context.Context, clientName string, username string, caKeyPair auth.CertKeyPair) (auth.ClientCert, error)
 }
 

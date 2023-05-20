@@ -6,10 +6,13 @@ import (
 	"github.com/jmoiron/sqlx"
 )
 
+// ClientRepository описывает методы работы с данными клиентских приложений
 type ClientRepository interface {
+	// SaveClient сохраняет сущность client
 	SaveClient(ctx context.Context, client Client) error
 }
 
+// SQLClientRepo для хранения данных используется стандартный пакет database/sql c оберткой sqlx
 type SQLClientRepo struct {
 	db *sqlx.DB
 }

@@ -11,6 +11,13 @@ import (
 var (
 	configFileType = "yaml"
 
+	// Переменные окружения
+	// PORT - порт на котором нужно поднять сервер
+	// DOMAIN_NAME - список разрешенных доменных имен для генерации сертификата
+	// DATABASE_URI - строка соединения с БД
+	// API_SECRET - ключ для подписи jwt
+	// CERT_FILE - путь к файлу сертификата
+	// PKEY_FILE - путь к файлу приватного ключа
 	envVars = []string{
 		"PORT",
 		"DOMAIN_NAME",
@@ -21,6 +28,7 @@ var (
 	}
 )
 
+// UserAccountConfig настройки приложения
 type UserAccountConfig struct {
 	Name           string       `mapstructure:"name"`
 	Port           string       `mapstructure:"port"`
