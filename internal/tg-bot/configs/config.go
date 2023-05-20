@@ -1,6 +1,7 @@
 package configs
 
 import (
+	"github.com/c0dered273/automation-remote-controller/internal/common/configs"
 	"github.com/c0dered273/automation-remote-controller/internal/common/validators"
 	"github.com/go-playground/validator/v10"
 	"github.com/rs/zerolog"
@@ -17,15 +18,9 @@ var (
 )
 
 type TGBotCfg struct {
-	Name     string `mapstructure:"name"`
-	BotToken string `mapstructure:"bot_token" validate:"required"`
-	Logger   `mapstructure:"logger"`
-}
-
-type Logger struct {
-	Level  string `mapstructure:"level"`
-	Format string `mapstructure:"format"`
-	Caller bool   `mapstructure:"caller"`
+	Name           string `mapstructure:"name"`
+	BotToken       string `mapstructure:"bot_token" validate:"required"`
+	configs.Logger `mapstructure:"logger"`
 }
 
 func setDefaults() {
