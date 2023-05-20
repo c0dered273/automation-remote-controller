@@ -1,6 +1,8 @@
 package main
 
 import (
+	"os"
+
 	"github.com/c0dered273/automation-remote-controller/internal/common/loggers"
 	"github.com/c0dered273/automation-remote-controller/internal/common/validators"
 	"github.com/c0dered273/automation-remote-controller/internal/tg-bot/configs"
@@ -8,6 +10,7 @@ import (
 )
 
 var (
+	LogWriter      = os.Stdout
 	configFileName = "tgbot_config"
 	configFilePath = []string{
 		".",
@@ -16,17 +19,17 @@ var (
 )
 
 func main() {
-	initLogger := loggers.NewDefaultLogger()
+	initLogger := loggers.NewDefaultLogger(LogWriter)
 	initLogger.Info().Msg("remote-control-tg-bot: init")
 	validator := validators.NewValidatorTagName("mapstructure")
-	cfg, err := configs.NewTGBotConfiguration(configFileName, configFilePath, initLogger, validator)
+	config, err := configs.NewTGBotConfiguration(configFileName, configFilePath, initLogger, validator)
 	if err != nil {
 		initLogger.Fatal().Err(err).Msg("remote-control-tg-bot: config init failed")
 	}
-	logger := loggers.NewLogger(cfg.Logger, "remote-control-tg-bot")
+	logger := loggers.NewLogger(LogWriter, config.Logger, "remote-control-tg-bot")
 
 	// tg bot
-	bot, err := tg.NewBotAPI(cfg.BotToken)
+	bot, err := tg.NewBotAPI(config.BotToken)
 	if err != nil {
 		logger.Fatal().Err(err).Msg("remote-control-tg-bot: bot init error")
 	}
