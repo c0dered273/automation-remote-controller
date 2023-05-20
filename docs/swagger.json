@@ -1,0 +1,159 @@
+{
+    "swagger": "2.0",
+    "info": {
+        "description": "Сервис управления личным кабинетом пользователя.",
+        "title": "user-account-api",
+        "contact": {},
+        "version": "0.0.1"
+    },
+    "paths": {
+        "/clients/{client_name}/register": {
+            "put": {
+                "description": "Регистрирует клиентское приложение для указанного пользователя и возвращает pem файл с сертификатом/приватным ключом.",
+                "consumes": [
+                    "application/json"
+                ],
+                "tags": [
+                    "client"
+                ],
+                "summary": "Регистрирует клиентское приложение для указанного пользователя.",
+                "operationId": "newClient",
+                "parameters": [
+                    {
+                        "type": "string",
+                        "description": "Register new client app",
+                        "name": "client_name",
+                        "in": "path",
+                        "required": true
+                    }
+                ],
+                "responses": {
+                    "200": {
+                        "description": "OK"
+                    },
+                    "404": {
+                        "description": "User not found",
+                        "schema": {
+                            "type": "string"
+                        }
+                    },
+                    "500": {
+                        "description": "Internal Server Error",
+                        "schema": {
+                            "type": "string"
+                        }
+                    }
+                }
+            }
+        },
+        "/public/users/auth": {
+            "post": {
+                "description": "Аутентифицирует пользователя по паре логин/пароль и возвращает jwt токен.",
+                "consumes": [
+                    "application/json"
+                ],
+                "tags": [
+                    "user"
+                ],
+                "summary": "Аутентифицирует существующего пользователя.",
+                "operationId": "authUser",
+                "parameters": [
+                    {
+                        "description": "User auth request",
+                        "name": "request",
+                        "in": "body",
+                        "required": true,
+                        "schema": {
+                            "$ref": "#/definitions/users.UserAuthRequest"
+                        }
+                    }
+                ],
+                "responses": {
+                    "200": {
+                        "description": "OK"
+                    },
+                    "404": {
+                        "description": "User not found",
+                        "schema": {
+                            "type": "string"
+                        }
+                    },
+                    "500": {
+                        "description": "Internal Server Error",
+                        "schema": {
+                            "type": "string"
+                        }
+                    }
+                }
+            }
+        },
+        "/public/users/register": {
+            "post": {
+                "description": "Регистрирует нового пользователя.",
+                "consumes": [
+                    "application/json"
+                ],
+                "tags": [
+                    "user"
+                ],
+                "summary": "Регистрирует нового пользователя.",
+                "operationId": "registerUser",
+                "parameters": [
+                    {
+                        "description": "New user request",
+                        "name": "request",
+                        "in": "body",
+                        "required": true,
+                        "schema": {
+                            "$ref": "#/definitions/users.NewUserRequest"
+                        }
+                    }
+                ],
+                "responses": {
+                    "200": {
+                        "description": "OK"
+                    },
+                    "409": {
+                        "description": "User already exists",
+                        "schema": {
+                            "type": "string"
+                        }
+                    },
+                    "500": {
+                        "description": "Internal Server Error",
+                        "schema": {
+                            "type": "string"
+                        }
+                    }
+                }
+            }
+        }
+    },
+    "definitions": {
+        "users.NewUserRequest": {
+            "type": "object",
+            "properties": {
+                "password": {
+                    "type": "string"
+                },
+                "tg_user": {
+                    "type": "string"
+                },
+                "username": {
+                    "type": "string"
+                }
+            }
+        },
+        "users.UserAuthRequest": {
+            "type": "object",
+            "properties": {
+                "password": {
+                    "type": "string"
+                },
+                "username": {
+                    "type": "string"
+                }
+            }
+        }
+    }
+}

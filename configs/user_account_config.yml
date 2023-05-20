@@ -1,0 +1,13 @@
+name: "user-account-api"
+database_uri: postgres://test:test@localhost:5432/remote-ctrl
+api_secret: 195051ed-4b53-4f30-b0a3-d6b97a0071c9
+cert_file: "cert/ca-cert.pem"
+pkey_file: "cert/ca-key.pem"
+
+client:
+  domain_name: [ "localhost", "*.c0dered.pro" ]
+
+logger:
+  level: "debug"
+  caller: false
+  format: "pretty"

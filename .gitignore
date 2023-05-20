@@ -26,4 +26,5 @@ go.work
 
 # Binaries
 cmd/remote-control-api/
-cmd/tg-bot/
+cmd/rc-tg-bot/
+cmd/user-account-api
