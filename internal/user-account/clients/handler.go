@@ -12,7 +12,7 @@ import (
 )
 
 var (
-	certFileName = "clientCert.pem"
+	certFileName = "client-cert.pem"
 )
 
 // RegisterNewClient godoc

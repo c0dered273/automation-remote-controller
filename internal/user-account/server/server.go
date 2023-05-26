@@ -11,6 +11,7 @@ import (
 	"github.com/c0dered273/automation-remote-controller/internal/user-account/configs"
 	"github.com/c0dered273/automation-remote-controller/internal/user-account/storage"
 	"github.com/c0dered273/automation-remote-controller/internal/user-account/users"
+	"github.com/jmoiron/sqlx"
 	echojwt "github.com/labstack/echo-jwt/v4"
 	"github.com/labstack/echo/v4"
 	"github.com/labstack/echo/v4/middleware"
@@ -32,7 +33,7 @@ type Services struct {
 }
 
 // NewServices настраивает сервисы
-func NewServices(config *configs.UserAccountConfig, logger zerolog.Logger) Services {
+func NewServices(config *configs.UserAccountConfig, logger zerolog.Logger) (Services, *sqlx.DB) {
 	// Users
 	db, err := storage.NewConnection(config.DatabaseUri)
 	if err != nil {
@@ -48,7 +49,7 @@ func NewServices(config *configs.UserAccountConfig, logger zerolog.Logger) Servi
 	return Services{
 		UserService:   userService,
 		ClientService: clientService,
-	}
+	}, db
 }
 
 // ReadConfig читает и валидирует конфигурацию приложения

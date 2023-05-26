@@ -1,4 +1,9 @@
 name: "remote-control-tg-bot"
+
+ca_cert: "cert/ca-cert.pem"
+server_cert: "cert/server-cert.pem"
+server_pkey: "cert/server-key.pem"
+
 logger:
   level: "debug"
   caller: false

@@ -1,0 +1,20 @@
+syntax = "proto3";
+package proto;
+option go_package = "github.com/c0dered273/automation-remote-controller/internal/common/proto";
+
+message Event {
+  string id = 1;
+  Action action = 2;
+  bytes payload = 3;
+
+}
+
+enum Action {
+  EMPTY = 0;
+  NOTIFICATION = 1;
+  TOGGLE = 2;
+}
+
+service EventMultiService {
+  rpc EventStreaming (stream Event) returns (stream Event) {}
+}

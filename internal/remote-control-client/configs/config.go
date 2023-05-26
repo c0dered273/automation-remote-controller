@@ -12,26 +12,22 @@ var (
 	configFileType = "yaml"
 
 	envVars = []string{
-		"PORT",
-		"BOT_TOKEN",
+		"SERVER_ADDR",
 		"CA_CERT",
-		"SERVER_CERT",
-		"SERVER_PKey",
+		"CLIENT_CERT",
 	}
 )
 
-type TGBotCfg struct {
+type RClientConfig struct {
 	Name           string `mapstructure:"name"`
-	Port           string `mapstructure:"port"`
-	BotToken       string `mapstructure:"bot_token" validate:"required"`
+	ServerAddr     string `mapstructure:"server_addr"`
 	CACert         string `mapstructure:"ca_cert" validate:"required"`
-	ServerCert     string `mapstructure:"server_cert" validate:"required"`
-	ServerPkey     string `mapstructure:"server_pkey" validate:"required"`
+	ClientCert     string `mapstructure:"client_cert" validate:"required"`
 	configs.Logger `mapstructure:"logger"`
 }
 
 func setDefaults() {
-	viper.SetDefault("port", "8080")
+	viper.SetDefault("server_addr", "8080")
 	viper.SetDefault("logger.level", "info")
 	viper.SetDefault("logger.format", "pretty")
 }
@@ -76,8 +72,8 @@ func bindEnvVars() error {
 	return nil
 }
 
-func newConfig() (*TGBotCfg, error) {
-	cfg := &TGBotCfg{}
+func newConfig() (*RClientConfig, error) {
+	cfg := &RClientConfig{}
 	err := viper.Unmarshal(cfg)
 	if err != nil {
 		return nil, err
@@ -85,7 +81,7 @@ func newConfig() (*TGBotCfg, error) {
 	return cfg, nil
 }
 
-func NewTGBotConfig(filename string, configPath []string, logger zerolog.Logger, validator validators.Validator) (*TGBotCfg, error) {
+func NewRClientConfig(filename string, configPath []string, logger zerolog.Logger, validator validators.Validator) (*RClientConfig, error) {
 	setDefaults()
 
 	err := bindConfigFile(filename, configPath, logger)
