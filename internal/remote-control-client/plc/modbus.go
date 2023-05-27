@@ -5,26 +5,30 @@ import (
 	"errors"
 	"fmt"
 	"sync"
+	"time"
 
 	plc4go "github.com/apache/plc4x/plc4go/pkg/api"
 	"github.com/apache/plc4x/plc4go/pkg/api/model"
 )
 
 var (
-	ErrPoolClosed    = errors.New("conn_pool: pool is closed")
-	ErrClosing       = errors.New("plc_conn: failed to close connection")
-	ErrConnWriteOnly = errors.New("plc_conn: can't read, write only connection")
-	ErrConnReadOnly  = errors.New("plc_conn: can't write, read only connection")
+	ErrPoolConnFailed    = errors.New("conn_pool: connection failed")
+	ErrPoolClosed        = errors.New("conn_pool: pool is closed")
+	ErrConnTimeout       = errors.New("plc_conn: connection timeout")
+	ErrConnClosed        = errors.New("plc_conn: connection is closed")
+	ErrConnAlreadyClosed = errors.New("plc_conn: connection already closed")
+	ErrConnWriteOnly     = errors.New("plc_conn: can't read, write only connection")
+	ErrConnReadOnly      = errors.New("plc_conn: can't write, read only connection")
 )
 
 type ConnPool struct {
 	plcURI       string
 	plcDriver    plc4go.PlcDriverManager
+	connTimeout  time.Duration
 	maxOpen      int
-	connRequests map[uint64]chan connRequest
-	nextRequest  uint64
+	connRequests map[chan connRequest]struct{}
 	numOpen      int
-	mu           sync.Mutex
+	mu           *sync.Mutex
 	closed       bool
 }
 
@@ -38,12 +42,28 @@ func (c *ConnPool) SetMaxOpenConns(n int) {
 	c.mu.Unlock()
 }
 
+func (c *ConnPool) SetConnTimeout(t time.Duration) {
+	c.mu.Lock()
+	c.connTimeout = t
+	c.mu.Unlock()
+}
+
 func (c *ConnPool) newConn() (plc4go.PlcConnection, error) {
 	plcConnChan := c.plcDriver.GetConnection(c.plcURI)
-	plcConnResult := <-plcConnChan
-	if plcConnResult.GetErr() != nil {
-		return nil, plcConnResult.GetErr()
+	plcConnResult, err := resultWithTimeout(plcConnChan, c.connTimeout)
+	if err != nil {
+
+		// DEBUG
+		fmt.Printf("new-err-conn, pool=%d, queue=%d \n", c.numOpen, len(c.connRequests))
+		// DEBUG
+
+		return nil, err
 	}
+
+	// DEBUG
+	fmt.Printf("new-conn, pool=%d, queue=%d \n", c.numOpen, len(c.connRequests))
+	// DEBUG
+
 	return plcConnResult.GetConnection(), nil
 }
 
@@ -61,9 +81,12 @@ func (c *ConnPool) conn(ctx context.Context) (*driverConn, error) {
 
 	if c.maxOpen > 0 && c.numOpen >= c.maxOpen {
 		req := make(chan connRequest, 1)
-		reqKey := c.nextRequest
-		c.nextRequest++
-		c.connRequests[reqKey] = req
+		c.connRequests[req] = struct{}{}
+
+		// DEBUG
+		fmt.Printf("queue-conn, pool=%d, queue=%d \n", c.numOpen, len(c.connRequests))
+		// DEBUG
+
 		c.mu.Unlock()
 
 		ret, ok := <-req
@@ -73,20 +96,19 @@ func (c *ConnPool) conn(ctx context.Context) (*driverConn, error) {
 		if ret.conn == nil {
 			return nil, ret.err
 		}
+
 		return ret.conn, ret.err
 	}
-	c.numOpen++
+
 	c.mu.Unlock()
 	plcConn, err := c.newConn()
 	if err != nil {
 		return nil, err
 	}
-
 	c.mu.Lock()
-	drvConn := &driverConn{
-		connPool: c,
-		conn:     plcConn,
-	}
+
+	c.numOpen++
+	drvConn := newDriveConn(c, plcConn)
 	c.mu.Unlock()
 	return drvConn, nil
 }
@@ -97,6 +119,10 @@ func (c *ConnPool) releaseConn(drvConn *driverConn) error {
 		return err
 	}
 
+	// DEBUG
+	fmt.Printf("release-conn, pool=%d, queue=%d \n", c.numOpen, len(c.connRequests))
+	// DEBUG
+
 	c.mu.Lock()
 	c.numOpen--
 	if c.maxOpen > 0 && c.numOpen > c.maxOpen {
@@ -105,22 +131,19 @@ func (c *ConnPool) releaseConn(drvConn *driverConn) error {
 	}
 	if l := len(c.connRequests); l > 0 {
 		var req chan connRequest
-		var reqKey uint64
-		for reqKey, req = range c.connRequests {
+		for req = range c.connRequests {
 			break
 		}
-		delete(c.connRequests, reqKey)
+		delete(c.connRequests, req)
+		c.numOpen++
 
 		c.mu.Unlock()
 		plcConn, err := c.newConn()
 		c.mu.Lock()
 
 		req <- connRequest{
-			conn: &driverConn{
-				connPool: c,
-				conn:     plcConn,
-			},
-			err: err,
+			conn: newDriveConn(c, plcConn),
+			err:  err,
 		}
 	}
 	c.mu.Unlock()
@@ -134,29 +157,13 @@ func (c *ConnPool) Close() error {
 		return nil
 	}
 
-	for _, req := range c.connRequests {
+	c.closed = true
+	for req := range c.connRequests {
 		close(req)
 	}
+
 	c.mu.Unlock()
 	return nil
-}
-
-func (c *ConnPool) readTagAddress(ctx context.Context, conn *driverConn, tagName string, tagAddress string) (model.PlcReadResponse, error) {
-	if !conn.conn.GetMetadata().CanRead() {
-		return nil, ErrConnWriteOnly
-	}
-	req, err := conn.conn.ReadRequestBuilder().
-		AddTagAddress(tagName, tagAddress).
-		Build()
-	if err != nil {
-		return nil, err
-	}
-	respChan := req.ExecuteWithContext(ctx)
-	reqResult := <-respChan
-	if reqResult.GetErr() != nil {
-		return nil, err
-	}
-	return reqResult.GetResponse(), nil
 }
 
 func (c *ConnPool) ReadTagAddress(ctx context.Context, tagName string, tagAddress string) (model.PlcReadResponse, error) {
@@ -166,15 +173,12 @@ func (c *ConnPool) ReadTagAddress(ctx context.Context, tagName string, tagAddres
 		return nil, ctx.Err()
 	}
 
-	// DEBUG
-	fmt.Printf("start conn %s, pool=%d, queue=%d \n", tagName, c.numOpen, len(c.connRequests))
-	// DEBUG
-
 	conn, err := c.conn(ctx)
 	if err != nil {
 		return nil, err
 	}
-	response, err := c.readTagAddress(ctx, conn, tagName, tagAddress)
+
+	response, err := conn.readTagAddress(ctx, tagName, tagAddress)
 	if err != nil {
 		rlErr := c.releaseConn(conn)
 		if rlErr != nil {
@@ -187,30 +191,7 @@ func (c *ConnPool) ReadTagAddress(ctx context.Context, tagName string, tagAddres
 	if err != nil {
 		return nil, err
 	}
-
-	// DEBUG
-	fmt.Printf("stop conn %s, pool=%d, queue=%d \n", tagName, c.numOpen, len(c.connRequests))
-	// DEBUG
-
 	return response, nil
-}
-
-func (c *ConnPool) writeTagAddress(ctx context.Context, conn *driverConn, tagName string, tagAddress string, value any) (model.PlcWriteResponse, error) {
-	if !conn.conn.GetMetadata().CanWrite() {
-		return nil, ErrConnReadOnly
-	}
-	req, err := conn.conn.WriteRequestBuilder().
-		AddTagAddress(tagName, tagAddress, value).
-		Build()
-	if err != nil {
-		return nil, err
-	}
-	respChan := req.ExecuteWithContext(ctx)
-	reqResult := <-respChan
-	if reqResult.GetErr() != nil {
-		return nil, err
-	}
-	return reqResult.GetResponse(), nil
 }
 
 func (c *ConnPool) WriteTagAddress(ctx context.Context, tagName string, tagAddress string, value any) (model.PlcWriteResponse, error) {
@@ -224,7 +205,7 @@ func (c *ConnPool) WriteTagAddress(ctx context.Context, tagName string, tagAddre
 	if err != nil {
 		return nil, err
 	}
-	response, err := c.writeTagAddress(ctx, conn, tagName, tagAddress, value)
+	response, err := conn.writeTagAddress(ctx, tagName, tagAddress, value)
 	if err != nil {
 		rlErr := c.releaseConn(conn)
 		if rlErr != nil {
@@ -237,8 +218,38 @@ func (c *ConnPool) WriteTagAddress(ctx context.Context, tagName string, tagAddre
 	if err != nil {
 		return nil, err
 	}
-
 	return response, nil
+}
+
+func (c *ConnPool) Ping(ctx context.Context) error {
+	select {
+	default:
+	case <-ctx.Done():
+		return ctx.Err()
+	}
+
+	conn, err := c.conn(ctx)
+	if err != nil {
+		return err
+	}
+	err = conn.ping(ctx)
+	if err != nil {
+		rlErr := c.releaseConn(conn)
+		if rlErr != nil {
+			return errors.Join(err, rlErr)
+		}
+		return err
+	}
+
+	err = c.releaseConn(conn)
+	if err != nil {
+		return err
+	}
+	return nil
+}
+
+type responseWithErr interface {
+	GetErr() error
 }
 
 type driverConn struct {
@@ -248,16 +259,146 @@ type driverConn struct {
 	mu       sync.Mutex
 }
 
+func (dc *driverConn) readTagAddress(ctx context.Context, tagName string, tagAddress string) (model.PlcReadResponse, error) {
+	select {
+	default:
+	case <-ctx.Done():
+		return nil, ctx.Err()
+	}
+	dc.mu.Lock()
+	if dc.closed {
+		dc.mu.Unlock()
+		return nil, ErrConnClosed
+	}
+
+	if !dc.conn.GetMetadata().CanRead() {
+		dc.mu.Unlock()
+		return nil, ErrConnWriteOnly
+	}
+	req, err := dc.conn.ReadRequestBuilder().
+		AddTagAddress(tagName, tagAddress).
+		Build()
+	if err != nil {
+		dc.mu.Unlock()
+		return nil, err
+	}
+	respChan := req.ExecuteWithContext(ctx)
+	reqResult, err := resultWithTimeout(respChan, dc.connPool.connTimeout)
+	if err != nil {
+		dc.mu.Unlock()
+		return nil, err
+	}
+
+	dc.mu.Unlock()
+	return reqResult.GetResponse(), nil
+}
+
+func (dc *driverConn) writeTagAddress(ctx context.Context, tagName string, tagAddress string, value any) (model.PlcWriteResponse, error) {
+	select {
+	default:
+	case <-ctx.Done():
+		return nil, ctx.Err()
+	}
+	dc.mu.Lock()
+	if dc.closed {
+		dc.mu.Unlock()
+		return nil, ErrConnClosed
+	}
+
+	if !dc.conn.GetMetadata().CanWrite() {
+		dc.mu.Unlock()
+		return nil, ErrConnReadOnly
+	}
+	req, err := dc.conn.WriteRequestBuilder().
+		AddTagAddress(tagName, tagAddress, value).
+		Build()
+	if err != nil {
+		dc.mu.Unlock()
+		return nil, err
+	}
+	respChan := req.ExecuteWithContext(ctx)
+	reqResult, err := resultWithTimeout(respChan, dc.connPool.connTimeout)
+	if err != nil {
+		dc.mu.Unlock()
+		return nil, err
+	}
+
+	dc.mu.Unlock()
+	return reqResult.GetResponse(), nil
+}
+
+func (dc *driverConn) ping(ctx context.Context) error {
+	select {
+	default:
+	case <-ctx.Done():
+		return ctx.Err()
+	}
+	dc.mu.Lock()
+	if dc.closed {
+		dc.mu.Unlock()
+		return ErrConnClosed
+	}
+
+	respChan := dc.conn.Ping()
+	_, err := resultWithTimeout(respChan, dc.connPool.connTimeout)
+	if err != nil {
+		dc.mu.Unlock()
+		return err
+	}
+
+	dc.mu.Unlock()
+	return nil
+}
+
 func (dc *driverConn) closeConn() error {
 	dc.mu.Lock()
-	dc.closed = true
-	dc.mu.Unlock()
-
-	closeResult := <-dc.conn.Close()
-	if closeResult.GetErr() != nil {
-		return ErrClosing
+	if dc.closed {
+		dc.mu.Unlock()
+		return ErrConnAlreadyClosed
 	}
+	dc.closed = true
+
+	closeChan := dc.conn.Close()
+	_, err := resultWithTimeout(closeChan, dc.connPool.connTimeout)
+	if err != nil {
+		dc.mu.Unlock()
+		return err
+	}
+
+	dc.mu.Unlock()
 	return nil
+}
+
+func resultWithTimeout[T responseWithErr](respChan <-chan T, timeout time.Duration) (T, error) {
+	var empty T
+	if timeout != 0 {
+		toutCtx, toutCancelCtx := context.WithTimeout(context.Background(), timeout)
+		defer toutCancelCtx()
+		for {
+			select {
+			case reqResult := <-respChan:
+				if reqResult.GetErr() != nil {
+					return empty, reqResult.GetErr()
+				}
+				return reqResult, nil
+			case <-toutCtx.Done():
+				return empty, ErrConnTimeout
+			}
+		}
+	}
+
+	reqResult := <-respChan
+	if reqResult.GetErr() != nil {
+		return empty, reqResult.GetErr()
+	}
+	return reqResult, nil
+}
+
+func newDriveConn(connPool *ConnPool, conn plc4go.PlcConnection) *driverConn {
+	return &driverConn{
+		connPool: connPool,
+		conn:     conn,
+	}
 }
 
 type connRequest struct {
@@ -265,10 +406,19 @@ type connRequest struct {
 	err  error
 }
 
-func NewConnPool(driver plc4go.PlcDriverManager, plcURI string) *ConnPool {
-	return &ConnPool{
+func NewConnPool(driver plc4go.PlcDriverManager, plcURI string) (*ConnPool, error) {
+	connPool := &ConnPool{
 		plcURI:       plcURI,
 		plcDriver:    driver,
-		connRequests: make(map[uint64]chan connRequest),
+		connTimeout:  5 * time.Second,
+		connRequests: make(map[chan connRequest]struct{}),
+		mu:           &sync.Mutex{},
 	}
+
+	err := connPool.Ping(context.Background())
+	if err != nil {
+		return nil, errors.Join(ErrPoolConnFailed, err)
+	}
+
+	return connPool, nil
 }

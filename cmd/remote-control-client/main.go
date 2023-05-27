@@ -98,80 +98,89 @@ func main() {
 	driverManager := plc4go.NewPlcDriverManager()
 	drivers.RegisterModbusTcpDriver(driverManager)
 
-	conn := plc.NewConnPool(driverManager, "modbus-tcp://10.0.1.10?unit-identifier=1&request-timeout=5000")
+	conn, err := plc.NewConnPool(driverManager, "modbus-tcp://10.0.1.10?unit-identifier=1&request-timeout=5000")
+	if err != nil {
+		fmt.Print(err)
+		return
+	}
 	conn.SetMaxOpenConns(4)
+	conn.SetConnTimeout(3 * time.Second)
 
-	//pingResultChannel := connection.Ping() // !!!Блокировка если недоступен мастер
-	//pingResult := <-pingResultChannel
-	//if pingResult.GetErr() != nil {
-	//	fmt.Printf("Couldn't ping device: %s", pingResult.GetErr())
-	//	return
-	//}
-	//logger.Info().Msg("Master ping successful")
-
-	for i := range [5]int{} {
+	for i := range [100]int{} {
 		go func(n int) {
 			for {
 				resp, err := conn.ReadTagAddress(ctx, fmt.Sprint("READ-", n), "holding-register:1:WORD")
 				if err != nil {
-					fmt.Printf("read%d error, %s", n, err)
-					return
+					fmt.Printf("read%d error, %s \n", n, err)
+					continue
 				}
 				value := resp.GetValue(fmt.Sprint("READ-", n))
 
 				fmt.Printf("READ-%d value: %d \n", n, value.GetInt16())
-				time.Sleep(1 * time.Second)
+				time.Sleep(100 * time.Millisecond)
 			}
 		}(i)
 	}
 
-	//go func() {
-	//	for {
-	//		resp, err := conn.ReadTagAddress(ctx, "read1", "holding-register:1:WORD")
-	//		if err != nil {
-	//			fmt.Printf("read1 error, %s", err)
-	//			return
-	//		}
-	//		value := resp.GetValue("read1").GetInt16()
-	//
-	//		fmt.Printf("READ1 value: %d \n", value)
-	//		time.Sleep(1 * time.Second)
-	//	}
-	//}()
+	// once
+	//resp, err := conn.ReadTagAddress(ctx, "read1", "holding-register:1:WORD")
+	//if err != nil {
+	//	fmt.Printf("read1 error, %s", err)
+	//	return
+	//}
+	//value := resp.GetValue("read1").GetInt16()
+	//fmt.Printf("READ1 value: %d \n", value)
 
-	//go func() {
-	//	for {
-	//		resp, err := conn.ReadTagAddress(ctx, "read2", "holding-register:2:WORD")
-	//		if err != nil {
-	//			fmt.Printf("read2 error, %s", err)
-	//			return
-	//		}
-	//		value := resp.GetValue("read2").GetInt16()
-	//
-	//		fmt.Printf("READ2 value: %d \n", value)
-	//		time.Sleep(1 * time.Second)
-	//	}
-	//}()
-	//
-	//currentValue := 1
-	//go func() {
-	//	for {
-	//		resp, err := conn.WriteTagAddress(ctx, "write1", "holding-register:1:WORD", currentValue)
-	//		if err != nil {
-	//			fmt.Printf("write1 error, %s", err)
-	//			return
-	//		}
-	//
-	//		fmt.Printf("WRITE1: %v \n", resp.GetResponseCode("write1"))
-	//
-	//		if currentValue == 1 {
-	//			currentValue = 0
-	//		} else {
-	//			currentValue = 1
-	//		}
-	//		time.Sleep(1 * time.Second)
-	//	}
-	//}()
+	go func() {
+		for {
+			resp, err := conn.ReadTagAddress(ctx, "read1", "holding-register:1:WORD")
+			if err != nil {
+				fmt.Printf("read1 error, %s \n", err)
+				//if errors.Is(err, plc.ErrConnTimeout) {
+				//	time.Sleep(1 * time.Second)
+				//}
+				continue
+			}
+			value := resp.GetValue("read1").GetInt16()
+
+			fmt.Printf("READ1 value: %d \n", value)
+			time.Sleep(100 * time.Millisecond)
+		}
+	}()
+
+	go func() {
+		for {
+			resp, err := conn.ReadTagAddress(ctx, "read2", "holding-register:2:WORD")
+			if err != nil {
+				fmt.Printf("read2 error, %s \n", err)
+				continue
+			}
+			value := resp.GetValue("read2").GetInt16()
+
+			fmt.Printf("READ2 value: %d \n", value)
+			time.Sleep(100 * time.Millisecond)
+		}
+	}()
+
+	currentValue := 1
+	go func() {
+		for {
+			resp, err := conn.WriteTagAddress(ctx, "write1", "holding-register:1:WORD", currentValue)
+			if err != nil {
+				fmt.Printf("write1 error, %s \n", err)
+				continue
+			}
+
+			fmt.Printf("WRITE1: %v \n", resp.GetResponseCode("write1"))
+
+			if currentValue == 1 {
+				currentValue = 0
+			} else {
+				currentValue = 1
+			}
+			time.Sleep(100 * time.Millisecond)
+		}
+	}()
 
 	//
 
