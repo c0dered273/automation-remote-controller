@@ -3,7 +3,6 @@ package plc
 import (
 	"context"
 	"errors"
-	"fmt"
 	"sync"
 	"time"
 
@@ -54,14 +53,14 @@ func (c *ConnPool) newConn() (plc4go.PlcConnection, error) {
 	if err != nil {
 
 		// DEBUG
-		fmt.Printf("new-err-conn, pool=%d, queue=%d \n", c.numOpen, len(c.connRequests))
+		//fmt.Printf("new-err-conn, pool=%d, queue=%d \n", c.numOpen, len(c.connRequests))
 		// DEBUG
 
 		return nil, err
 	}
 
 	// DEBUG
-	fmt.Printf("new-conn, pool=%d, queue=%d \n", c.numOpen, len(c.connRequests))
+	//fmt.Printf("new-conn, pool=%d, queue=%d \n", c.numOpen, len(c.connRequests))
 	// DEBUG
 
 	return plcConnResult.GetConnection(), nil
@@ -84,7 +83,7 @@ func (c *ConnPool) conn(ctx context.Context) (*driverConn, error) {
 		c.connRequests[req] = struct{}{}
 
 		// DEBUG
-		fmt.Printf("queue-conn, pool=%d, queue=%d \n", c.numOpen, len(c.connRequests))
+		//fmt.Printf("queue-conn, pool=%d, queue=%d \n", c.numOpen, len(c.connRequests))
 		// DEBUG
 
 		c.mu.Unlock()
@@ -120,7 +119,7 @@ func (c *ConnPool) releaseConn(drvConn *driverConn) error {
 	}
 
 	// DEBUG
-	fmt.Printf("release-conn, pool=%d, queue=%d \n", c.numOpen, len(c.connRequests))
+	//fmt.Printf("release-conn, pool=%d, queue=%d \n", c.numOpen, len(c.connRequests))
 	// DEBUG
 
 	c.mu.Lock()

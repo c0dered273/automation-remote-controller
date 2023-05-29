@@ -1,10 +1,12 @@
 name: "remote-control-tg-bot"
 
+database_uri: postgres://test:test@localhost:5432/remote-ctrl
+
 ca_cert: "cert/ca-cert.pem"
 server_cert: "cert/server-cert.pem"
 server_pkey: "cert/server-key.pem"
 
 logger:
   level: "debug"
-  caller: false
+  caller: true
   format: "pretty"

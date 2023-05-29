@@ -12,7 +12,7 @@ message Event {
 enum Action {
   EMPTY = 0;
   NOTIFICATION = 1;
-  TOGGLE = 2;
+  SWITCH = 2;
 }
 
 service EventMultiService {

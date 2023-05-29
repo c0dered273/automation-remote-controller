@@ -17,6 +17,7 @@ var (
 		"CA_CERT",
 		"SERVER_CERT",
 		"SERVER_PKey",
+		"DATABASE_URI",
 	}
 )
 
@@ -27,6 +28,7 @@ type TGBotCfg struct {
 	CACert         string `mapstructure:"ca_cert" validate:"required"`
 	ServerCert     string `mapstructure:"server_cert" validate:"required"`
 	ServerPkey     string `mapstructure:"server_pkey" validate:"required"`
+	DatabaseUri    string `mapstructure:"database_uri" validate:"required"`
 	configs.Logger `mapstructure:"logger"`
 }
 

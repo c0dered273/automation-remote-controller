@@ -70,7 +70,7 @@ func (r SQLUserRepo) FindTGNameByUsername(ctx context.Context, name string) (str
 	return tgName, nil
 }
 
-func NewUserRepo(db *sqlx.DB) SQLUserRepo {
+func NewRepo(db *sqlx.DB) SQLUserRepo {
 	return SQLUserRepo{
 		db: db,
 	}

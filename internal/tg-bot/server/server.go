@@ -1,6 +1,8 @@
 package server
 
 import (
+	"container/list"
+	"context"
 	"crypto/tls"
 	"crypto/x509"
 	"os"
@@ -82,7 +84,7 @@ func newServerOptions(logger zerolog.Logger, creds credentials.TransportCredenti
 	return opts
 }
 
-func NewGRPCServer(config *configs.TGBotCfg, logger zerolog.Logger) (*grpc.Server, error) {
+func NewGRPCServer(ctx context.Context, config *configs.TGBotCfg, logger zerolog.Logger, bot *TGBot, eventQueue *list.List) (*grpc.Server, error) {
 	creds, err := newServerCredentials(config, logger)
 	if err != nil {
 		return nil, err
@@ -90,7 +92,7 @@ func NewGRPCServer(config *configs.TGBotCfg, logger zerolog.Logger) (*grpc.Serve
 	serverOptions := newServerOptions(logger, creds)
 	server := grpc.NewServer(serverOptions...)
 
-	proto.RegisterEventMultiServiceServer(server, services.NewEventMultiService())
+	proto.RegisterEventMultiServiceServer(server, services.NewEventMultiService(ctx, logger, eventQueue, bot.Notification()))
 
 	return server, err
 }

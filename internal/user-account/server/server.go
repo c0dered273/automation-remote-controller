@@ -39,7 +39,7 @@ func NewServices(config *configs.UserAccountConfig, logger zerolog.Logger) (Serv
 	if err != nil {
 		logger.Fatal().Err(err).Msg("user_account: db connection error")
 	}
-	userRepo := users.NewUserRepo(db)
+	userRepo := users.NewRepo(db)
 	userService := users.NewUserService(userRepo)
 
 	// Clients
