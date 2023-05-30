@@ -41,11 +41,11 @@ type CertKeyPair struct {
 }
 
 // GenerateToken генерирует токен подписанный секретом
-func GenerateToken(username string, secret string) (string, error) {
+func GenerateToken(username string, secret string, expire time.Duration) (string, error) {
 	claim := JwtCustomClaims{
 		Username: username,
 		RegisteredClaims: jwt.RegisteredClaims{
-			ExpiresAt: jwt.NewNumericDate(time.Now().Add(time.Hour * 720)),
+			ExpiresAt: jwt.NewNumericDate(time.Now().Add(expire)),
 		},
 	}
 

@@ -89,7 +89,7 @@ func NewEchoServer(s Services, config *configs.UserAccountConfig, logger zerolog
 	// Public routes
 	p := e.Group("/public")
 	p.POST("/users/register", users.RegisterUser(s.UserService))
-	p.POST("/users/auth", users.AuthUser(s.UserService, config.ApiSecret))
+	p.POST("/users/auth", users.AuthUser(s.UserService, config.ApiSecret, config.JWTExpire))
 
 	// Restricted routes
 	r := e.Group("/")

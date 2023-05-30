@@ -3,6 +3,7 @@ package clients
 import (
 	"context"
 	"errors"
+	"fmt"
 
 	"github.com/c0dered273/automation-remote-controller/internal/user-account/auth"
 	"github.com/c0dered273/automation-remote-controller/internal/user-account/configs"
@@ -34,7 +35,7 @@ func (c ClientServiceImpl) NewClient(
 
 	tgName, err := c.userRepo.FindTGNameByUsername(ctx, username)
 	if err != nil {
-		return auth.ClientCert{}, err
+		return auth.ClientCert{}, fmt.Errorf("find user: %w", err)
 	}
 
 	newClient := Client{
@@ -48,7 +49,7 @@ func (c ClientServiceImpl) NewClient(
 		if errors.As(err, &pgErr) && pgErr.Code == "23505" {
 			return auth.ClientCert{}, repository.ErrAlreadyExists
 		}
-		return auth.ClientCert{}, err
+		return auth.ClientCert{}, fmt.Errorf("save client: %w", err)
 	}
 
 	cert, err := auth.GenerateCert(
@@ -58,7 +59,7 @@ func (c ClientServiceImpl) NewClient(
 		c.clientConfig.DomainName,
 	)
 	if err != nil {
-		return auth.ClientCert{}, err
+		return auth.ClientCert{}, fmt.Errorf("generate client cert: %w", err)
 	}
 
 	return auth.ClientCert{

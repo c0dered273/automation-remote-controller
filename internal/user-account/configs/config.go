@@ -1,6 +1,8 @@
 package configs
 
 import (
+	"time"
+
 	"github.com/c0dered273/automation-remote-controller/internal/common/configs"
 	"github.com/c0dered273/automation-remote-controller/internal/common/validators"
 	"github.com/rs/zerolog"
@@ -23,6 +25,7 @@ var (
 		"DOMAIN_NAME",
 		"DATABASE_URI",
 		"API_SECRET",
+		"TOKEN_EXPIRE",
 		"CERT_FILE",
 		"PKEY_FILE",
 	}
@@ -30,13 +33,14 @@ var (
 
 // UserAccountConfig настройки приложения
 type UserAccountConfig struct {
-	Name           string       `mapstructure:"name"`
-	Port           string       `mapstructure:"port"`
-	DatabaseUri    string       `mapstructure:"database_uri" validate:"required"`
-	ApiSecret      string       `mapstructure:"api_secret" validate:"required"`
-	CertFile       string       `mapstructure:"cert_file" validate:"required"`
-	PKeyFile       string       `mapstructure:"pkey_file" validate:"required"`
-	Client         ClientConfig `mapstructure:"client"`
+	Name           string        `mapstructure:"name"`
+	Port           string        `mapstructure:"port"`
+	DatabaseUri    string        `mapstructure:"database_uri" validate:"required"`
+	ApiSecret      string        `mapstructure:"api_secret" validate:"required"`
+	JWTExpire      time.Duration `mapstructure:"token_expire" validate:"required"`
+	CertFile       string        `mapstructure:"cert_file" validate:"required"`
+	PKeyFile       string        `mapstructure:"pkey_file" validate:"required"`
+	Client         ClientConfig  `mapstructure:"client"`
 	configs.Logger `mapstructure:"logger"`
 }
 
@@ -47,6 +51,7 @@ type ClientConfig struct {
 func setDefaults() {
 	viper.SetDefault("port", "8080")
 	viper.SetDefault("client.domain_name", "c0dered.pro")
+	viper.SetDefault("token_expire", 720*time.Hour)
 	viper.SetDefault("logger.level", "info")
 	viper.SetDefault("logger.format", "pretty")
 }
