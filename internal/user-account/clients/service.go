@@ -5,10 +5,10 @@ import (
 	"errors"
 	"fmt"
 
-	"github.com/c0dered273/automation-remote-controller/internal/user-account/auth"
 	"github.com/c0dered273/automation-remote-controller/internal/user-account/configs"
 	"github.com/c0dered273/automation-remote-controller/internal/user-account/repository"
 	"github.com/c0dered273/automation-remote-controller/internal/user-account/users"
+	"github.com/c0dered273/automation-remote-controller/pkg/auth"
 	"github.com/google/uuid"
 	"github.com/jackc/pgx/v5/pgconn"
 )

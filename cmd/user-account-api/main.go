@@ -8,9 +8,9 @@ import (
 	"syscall"
 	"time"
 
-	"github.com/c0dered273/automation-remote-controller/internal/common/loggers"
-	"github.com/c0dered273/automation-remote-controller/internal/common/validators"
 	"github.com/c0dered273/automation-remote-controller/internal/user-account/server"
+	"github.com/c0dered273/automation-remote-controller/pkg/loggers"
+	"github.com/c0dered273/automation-remote-controller/pkg/validators"
 	_ "github.com/jackc/pgx/v5/stdlib"
 )
 

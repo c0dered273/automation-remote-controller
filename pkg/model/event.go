@@ -5,7 +5,7 @@ import (
 	"fmt"
 	"strings"
 
-	"github.com/c0dered273/automation-remote-controller/internal/common/proto"
+	"github.com/c0dered273/automation-remote-controller/pkg/proto"
 )
 
 type Action uint8
@@ -43,8 +43,7 @@ type Event struct {
 }
 
 type NotifyEvent struct {
-	TGName string `json:"tg_name"`
-	Text   string `json:"text"`
+	Text string `json:"text"`
 }
 
 type ActionEvent struct {

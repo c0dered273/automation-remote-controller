@@ -9,9 +9,9 @@ import (
 	"syscall"
 	"time"
 
-	"github.com/c0dered273/automation-remote-controller/internal/common/loggers"
 	"github.com/c0dered273/automation-remote-controller/internal/tg-bot/handlers"
 	"github.com/c0dered273/automation-remote-controller/internal/tg-bot/server"
+	"github.com/c0dered273/automation-remote-controller/pkg/loggers"
 )
 
 func main() {

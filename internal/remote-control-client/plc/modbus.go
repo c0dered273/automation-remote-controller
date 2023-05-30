@@ -51,17 +51,8 @@ func (c *ConnPool) newConn() (plc4go.PlcConnection, error) {
 	plcConnChan := c.plcDriver.GetConnection(c.plcURI)
 	plcConnResult, err := resultWithTimeout(plcConnChan, c.connTimeout)
 	if err != nil {
-
-		// DEBUG
-		//fmt.Printf("new-err-conn, pool=%d, queue=%d \n", c.numOpen, len(c.connRequests))
-		// DEBUG
-
 		return nil, err
 	}
-
-	// DEBUG
-	//fmt.Printf("new-conn, pool=%d, queue=%d \n", c.numOpen, len(c.connRequests))
-	// DEBUG
 
 	return plcConnResult.GetConnection(), nil
 }
@@ -81,11 +72,6 @@ func (c *ConnPool) conn(ctx context.Context) (*driverConn, error) {
 	if c.maxOpen > 0 && c.numOpen >= c.maxOpen {
 		req := make(chan connRequest, 1)
 		c.connRequests[req] = struct{}{}
-
-		// DEBUG
-		//fmt.Printf("queue-conn, pool=%d, queue=%d \n", c.numOpen, len(c.connRequests))
-		// DEBUG
-
 		c.mu.Unlock()
 
 		ret, ok := <-req
@@ -117,11 +103,6 @@ func (c *ConnPool) releaseConn(drvConn *driverConn) error {
 	if err != nil {
 		return err
 	}
-
-	// DEBUG
-	//fmt.Printf("release-conn, pool=%d, queue=%d \n", c.numOpen, len(c.connRequests))
-	// DEBUG
-
 	c.mu.Lock()
 	c.numOpen--
 	if c.maxOpen > 0 && c.numOpen > c.maxOpen {

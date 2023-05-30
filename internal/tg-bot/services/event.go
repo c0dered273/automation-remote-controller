@@ -5,8 +5,8 @@ import (
 	"context"
 	"encoding/json"
 
-	"github.com/c0dered273/automation-remote-controller/internal/common/model"
-	"github.com/c0dered273/automation-remote-controller/internal/common/proto"
+	"github.com/c0dered273/automation-remote-controller/pkg/model"
+	proto2 "github.com/c0dered273/automation-remote-controller/pkg/proto"
 	"github.com/google/uuid"
 	"github.com/rs/zerolog"
 	"google.golang.org/grpc/codes"
@@ -18,14 +18,14 @@ var (
 )
 
 type EventMultiService struct {
-	proto.UnimplementedEventMultiServiceServer
+	proto2.UnimplementedEventMultiServiceServer
 	ctx            context.Context
 	logger         zerolog.Logger
 	eventQueue     *list.List
 	notifyCallback func(chatID int64, text string) error
 }
 
-func (s *EventMultiService) EventStreaming(srv proto.EventMultiService_EventStreamingServer) error {
+func (s *EventMultiService) EventStreaming(srv proto2.EventMultiService_EventStreamingServer) error {
 	recvChan := make(chan *model.Event)
 	sendChan := make(chan *model.Event)
 
@@ -76,7 +76,7 @@ func (s *EventMultiService) EventStreaming(srv proto.EventMultiService_EventStre
 		case e := <-recvChan:
 			// RECV
 			switch e.Event.Action {
-			case proto.Action_NOTIFICATION:
+			case proto2.Action_NOTIFICATION:
 				var notifyEvent model.NotifyEvent
 				err := json.Unmarshal(e.Event.Payload, &notifyEvent)
 				if err != nil {
@@ -101,9 +101,9 @@ func (s *EventMultiService) EventStreaming(srv proto.EventMultiService_EventStre
 					return status.Errorf(codes.Internal, "Internal error")
 				}
 				event := &model.Event{
-					Event: &proto.Event{
+					Event: &proto2.Event{
 						Id:      uuid.NewString(),
-						Action:  proto.Action_SWITCH,
+						Action:  proto2.Action_SWITCH,
 						Payload: payload,
 					},
 					Err: err,

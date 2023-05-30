@@ -8,7 +8,7 @@ import (
 	"strings"
 	"time"
 
-	"github.com/c0dered273/automation-remote-controller/internal/common/configs"
+	"github.com/c0dered273/automation-remote-controller/pkg/configs"
 	"github.com/labstack/echo/v4"
 	"github.com/labstack/echo/v4/middleware"
 	"github.com/labstack/gommon/log"

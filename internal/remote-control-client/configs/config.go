@@ -1,8 +1,14 @@
 package configs
 
 import (
-	"github.com/c0dered273/automation-remote-controller/internal/common/configs"
-	"github.com/c0dered273/automation-remote-controller/internal/common/validators"
+	"errors"
+	"fmt"
+	"os"
+	"reflect"
+
+	"github.com/c0dered273/automation-remote-controller/pkg/auth"
+	"github.com/c0dered273/automation-remote-controller/pkg/configs"
+	"github.com/c0dered273/automation-remote-controller/pkg/validators"
 	"github.com/rs/zerolog"
 	"github.com/spf13/pflag"
 	"github.com/spf13/viper"
@@ -15,15 +21,32 @@ var (
 		"SERVER_ADDR",
 		"CA_CERT",
 		"CLIENT_CERT",
+		"PLC_URI",
 	}
 )
 
 type RClientConfig struct {
-	Name           string `mapstructure:"name"`
-	ServerAddr     string `mapstructure:"server_addr"`
-	CACert         string `mapstructure:"ca_cert" validate:"required"`
-	ClientCert     string `mapstructure:"client_cert" validate:"required"`
+	Name           string          `mapstructure:"name"`
+	ServerAddr     string          `mapstructure:"server_addr"`
+	CACert         string          `mapstructure:"ca_cert" validate:"required"`
+	ClientCert     string          `mapstructure:"client_cert" validate:"required"`
+	TGUsername     string          `validate:"required"`
+	CertID         string          `validate:"required"`
+	PLCUri         string          `mapstructure:"plc_uri" validate:"required"`
+	Devices        []Devices       `mapstructure:"devices" validate:"required"`
+	Notifications  []Notifications `mapstructure:"notifications" validate:"required"`
 	configs.Logger `mapstructure:"logger"`
+}
+
+type Devices struct {
+	DeviceID   string            `mapstructure:"device_id"`
+	TagAddress string            `mapstructure:"tag_address"`
+	Values     map[string]string `mapstructure:"values"`
+}
+
+type Notifications struct {
+	TagAddress string            `mapstructure:"tag_address"`
+	Text       map[string]string `mapstructure:"text"`
 }
 
 func setDefaults() {
@@ -32,7 +55,34 @@ func setDefaults() {
 	viper.SetDefault("logger.format", "pretty")
 }
 
-func postProcessing() {
+func postProcessing(config *RClientConfig) error {
+	clientPEM, err := os.ReadFile(config.ClientCert)
+	if err != nil {
+		return fmt.Errorf("failed to read client certificate: %w", err)
+	}
+	clientCert, err := auth.ParseCert(clientPEM)
+	if err != nil {
+		return fmt.Errorf("failed to read client certificate: %w", err)
+	}
+	var tgName string
+	var certID string
+	for _, n := range clientCert.Subject.Names {
+		if reflect.DeepEqual(n.Type, auth.OwnerOID) {
+			tgName = n.Value.(string)
+			continue
+		}
+		if reflect.DeepEqual(n.Type, auth.X500UniqueIdentifier) {
+			certID = n.Value.(string)
+			continue
+		}
+	}
+	if len(tgName) == 0 || len(certID) == 0 {
+		return errors.New("client config: failed to parse credentials")
+	}
+
+	config.TGUsername = tgName
+	config.CertID = certID
+	return nil
 }
 
 func bindPFlags() error {
@@ -104,7 +154,10 @@ func NewRClientConfig(filename string, configPath []string, logger zerolog.Logge
 		return nil, nErr
 	}
 
-	postProcessing()
+	err = postProcessing(cfg)
+	if err != nil {
+		return nil, err
+	}
 
 	err = validator.Validate(cfg)
 	if err != nil {

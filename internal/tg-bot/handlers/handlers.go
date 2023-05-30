@@ -5,8 +5,8 @@ import (
 	"fmt"
 	"strings"
 
-	"github.com/c0dered273/automation-remote-controller/internal/common/model"
 	"github.com/c0dered273/automation-remote-controller/internal/tg-bot/server"
+	"github.com/c0dered273/automation-remote-controller/pkg/model"
 	tgbotapi "github.com/go-telegram-bot-api/telegram-bot-api/v5"
 	"github.com/rs/zerolog"
 )

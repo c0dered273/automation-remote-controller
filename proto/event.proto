@@ -1,6 +1,6 @@
 syntax = "proto3";
 package proto;
-option go_package = "github.com/c0dered273/automation-remote-controller/internal/common/proto";
+option go_package = "github.com/c0dered273/automation-remote-controller/pkg/proto";
 
 message Event {
   string id = 1;

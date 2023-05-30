@@ -1,8 +1,8 @@
 package configs
 
 import (
-	"github.com/c0dered273/automation-remote-controller/internal/common/configs"
-	"github.com/c0dered273/automation-remote-controller/internal/common/validators"
+	"github.com/c0dered273/automation-remote-controller/pkg/configs"
+	"github.com/c0dered273/automation-remote-controller/pkg/validators"
 	"github.com/rs/zerolog"
 	"github.com/spf13/pflag"
 	"github.com/spf13/viper"
