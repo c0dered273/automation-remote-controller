@@ -3,6 +3,7 @@ package users
 import (
 	"errors"
 	"net/http"
+	"time"
 
 	"github.com/c0dered273/automation-remote-controller/internal/user-account/repository"
 	"github.com/labstack/echo/v4"
@@ -36,10 +37,10 @@ func RegisterUser(service UserService) func(echo.Context) error {
 		err := service.RegisterUser(c.Request().Context(), registerRequest)
 		if err != nil {
 			if errors.Is(err, repository.ErrAlreadyExists) {
-				c.Logger().Errorf("handler: user already exists, %s", err)
+				c.Logger().Errorf("handler: user already exists, error: %s, method: /public/users/register", err)
 				return echo.NewHTTPError(http.StatusConflict, "User already exists")
 			}
-			c.Logger().Error(err)
+			c.Logger().Errorf("handler: %s, method: /public/users/register, username: %s", err, registerRequest.Username)
 			return echo.ErrInternalServerError
 		}
 
@@ -59,7 +60,7 @@ func RegisterUser(service UserService) func(echo.Context) error {
 //	@Failure		404	{string}	string	"User not found"
 //	@Failure		500	{string}	string	"Internal Server Error"
 //	@Router			/public/users/auth [post]
-func AuthUser(service UserService, secret string) func(ctx echo.Context) error {
+func AuthUser(service UserService, secret string, expire time.Duration) func(ctx echo.Context) error {
 	return func(c echo.Context) error {
 		authRequest := UserAuthRequest{}
 		if err := c.Bind(&authRequest); err != nil {
@@ -72,13 +73,13 @@ func AuthUser(service UserService, secret string) func(ctx echo.Context) error {
 			return echo.ErrBadRequest
 		}
 
-		token, err := service.AuthUser(c.Request().Context(), authRequest, secret)
+		token, err := service.AuthUser(c.Request().Context(), authRequest, secret, expire)
 		if err != nil {
 			if errors.Is(err, repository.ErrNotFound) {
-				c.Logger().Errorf("handler: user not found, %s", err)
+				c.Logger().Errorf("handler: user not found, error: %s, method: /public/users/register", err)
 				return echo.NewHTTPError(http.StatusNotFound, "User not found")
 			}
-			c.Logger().Error(err)
+			c.Logger().Errorf("handler: %s, method: /public/users/auth, username: %s", err, authRequest.Username)
 			return echo.ErrInternalServerError
 		}
 

@@ -1,6 +1,7 @@
 name: "user-account-api"
 database_uri: postgres://test:test@localhost:5432/remote-ctrl
 api_secret: 195051ed-4b53-4f30-b0a3-d6b97a0071c9
+token_expire: 720h
 cert_file: "cert/ca-cert.pem"
 pkey_file: "cert/ca-key.pem"
 
