@@ -20,6 +20,11 @@ var (
 	ErrConnReadOnly      = errors.New("plc_conn: can't write, read only connection")
 )
 
+// ConnPool пул соединений для подключения к контроллеру.
+// Большинство промышленных контроллеров имеет ограниченное количество одновременных соединения и их превышение может привести к потере данных.
+// В текущей реализации соединения не пере используются, на каждый запрос создается новое соединение, после выполнения запроса соединение закрывается.
+// Пул работает в режиме ограничения количества одновременных соединений с ПЛК.
+// При превышении лимита соединений, запросы помещаются в очередь и каждое закрытое соединение запускает новое для запроса из очереди.
 type ConnPool struct {
 	plcURI       string
 	plcDriver    plc4go.PlcDriverManager
@@ -31,6 +36,7 @@ type ConnPool struct {
 	closed       bool
 }
 
+// SetMaxOpenConns устанавливает максимальное количество одновременно открытых соединений
 func (c *ConnPool) SetMaxOpenConns(n int) {
 	c.mu.Lock()
 	c.maxOpen = n
@@ -41,12 +47,14 @@ func (c *ConnPool) SetMaxOpenConns(n int) {
 	c.mu.Unlock()
 }
 
+// SetConnTimeout устанавливает таймаут для соединения
 func (c *ConnPool) SetConnTimeout(t time.Duration) {
 	c.mu.Lock()
 	c.connTimeout = t
 	c.mu.Unlock()
 }
 
+// newConn создает новое соединение с контроллером, используя переданный драйвер протокола
 func (c *ConnPool) newConn() (plc4go.PlcConnection, error) {
 	plcConnChan := c.plcDriver.GetConnection(c.plcURI)
 	plcConnResult, err := resultWithTimeout(plcConnChan, c.connTimeout)
@@ -57,6 +65,7 @@ func (c *ConnPool) newConn() (plc4go.PlcConnection, error) {
 	return plcConnResult.GetConnection(), nil
 }
 
+// conn создает новое соединение или помещает запрос в очередь и блокирует корутину, если лимит превышен
 func (c *ConnPool) conn(ctx context.Context) (*driverConn, error) {
 	select {
 	default:
@@ -98,6 +107,7 @@ func (c *ConnPool) conn(ctx context.Context) (*driverConn, error) {
 	return drvConn, nil
 }
 
+// releaseConn закрывает отработавшее соединение и если есть запросы в очереди, создает новое соединение для этого запроса
 func (c *ConnPool) releaseConn(drvConn *driverConn) error {
 	err := drvConn.closeConn()
 	if err != nil {
@@ -146,6 +156,7 @@ func (c *ConnPool) Close() error {
 	return nil
 }
 
+// ReadTagAddress вычитывает указанный в tagAddress тэг из контроллера
 func (c *ConnPool) ReadTagAddress(ctx context.Context, tagName string, tagAddress string) (model.PlcReadResponse, error) {
 	select {
 	default:
@@ -174,6 +185,7 @@ func (c *ConnPool) ReadTagAddress(ctx context.Context, tagName string, tagAddres
 	return response, nil
 }
 
+// WriteTagAddress записывает значение в указанный в tagAddress тег контроллера
 func (c *ConnPool) WriteTagAddress(ctx context.Context, tagName string, tagAddress string, value any) (model.PlcWriteResponse, error) {
 	select {
 	default:
@@ -201,6 +213,7 @@ func (c *ConnPool) WriteTagAddress(ctx context.Context, tagName string, tagAddre
 	return response, nil
 }
 
+// Ping проверяет наличие соединения с контроллером
 func (c *ConnPool) Ping(ctx context.Context) error {
 	select {
 	default:
@@ -386,6 +399,7 @@ type connRequest struct {
 	err  error
 }
 
+// NewConnPool возвращает настроенный пул соединений
 func NewConnPool(driver plc4go.PlcDriverManager, plcURI string) (*ConnPool, error) {
 	connPool := &ConnPool{
 		plcURI:       plcURI,

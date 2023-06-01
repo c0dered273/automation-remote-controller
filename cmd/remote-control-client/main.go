@@ -14,6 +14,10 @@ import (
 	"github.com/c0dered273/automation-remote-controller/pkg/model"
 )
 
+//	@Title			remote-control-client
+//	@Description	Брокер сообщений, конвертирует изменения тегов ПЛК в сообщения внутри gRPC стрима
+//	@Version		0.0.1
+
 func main() {
 	shutdown := make(chan os.Signal, 1)
 	signal.Notify(shutdown, syscall.SIGHUP, syscall.SIGINT, syscall.SIGTERM, syscall.SIGQUIT)
@@ -24,11 +28,7 @@ func main() {
 	sendChan := make(chan model.NotifyEvent, 1)
 	receiveChan := make(chan model.ActionEvent)
 
-	stream, err := client.NewBidirectionalStream(ctx, config, logger)
-	if err != nil {
-		logger.Fatal().Err(err)
-	}
-	serverPoll := client.NewPollService(ctx, stream, sendChan, receiveChan, logger)
+	serverPoll := client.NewPollService(ctx, sendChan, receiveChan, config, logger)
 	serverPoll.Poll()
 
 	driverManager := plc4go.NewPlcDriverManager()
