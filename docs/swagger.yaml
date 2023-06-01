@@ -1,0 +1,106 @@
+definitions:
+  users.NewUserRequest:
+    properties:
+      password:
+        type: string
+      tg_user:
+        type: string
+      username:
+        type: string
+    type: object
+  users.UserAuthRequest:
+    properties:
+      password:
+        type: string
+      username:
+        type: string
+    type: object
+info:
+  contact: {}
+  description: Сервис управления личным кабинетом пользователя.
+  title: user-account-api
+  version: 0.0.1
+paths:
+  /clients/{client_name}/register:
+    put:
+      consumes:
+      - application/json
+      description: Регистрирует клиентское приложение для указанного пользователя
+        и возвращает pem файл с сертификатом/приватным ключом.
+      operationId: newClient
+      parameters:
+      - description: Register new client app
+        in: path
+        name: client_name
+        required: true
+        type: string
+      responses:
+        "200":
+          description: OK
+        "404":
+          description: User not found
+          schema:
+            type: string
+        "500":
+          description: Internal Server Error
+          schema:
+            type: string
+      summary: Регистрирует клиентское приложение для указанного пользователя.
+      tags:
+      - client
+  /public/users/auth:
+    post:
+      consumes:
+      - application/json
+      description: Аутентифицирует пользователя по паре логин/пароль и возвращает
+        jwt токен.
+      operationId: authUser
+      parameters:
+      - description: User auth request
+        in: body
+        name: request
+        required: true
+        schema:
+          $ref: '#/definitions/users.UserAuthRequest'
+      responses:
+        "200":
+          description: OK
+        "404":
+          description: User not found
+          schema:
+            type: string
+        "500":
+          description: Internal Server Error
+          schema:
+            type: string
+      summary: Аутентифицирует существующего пользователя.
+      tags:
+      - user
+  /public/users/register:
+    post:
+      consumes:
+      - application/json
+      description: Регистрирует нового пользователя.
+      operationId: registerUser
+      parameters:
+      - description: New user request
+        in: body
+        name: request
+        required: true
+        schema:
+          $ref: '#/definitions/users.NewUserRequest'
+      responses:
+        "200":
+          description: OK
+        "409":
+          description: User already exists
+          schema:
+            type: string
+        "500":
+          description: Internal Server Error
+          schema:
+            type: string
+      summary: Регистрирует нового пользователя.
+      tags:
+      - user
+swagger: "2.0"

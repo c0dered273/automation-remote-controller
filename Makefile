@@ -47,6 +47,12 @@ build: test ## Build your project and put the output binary in /bin
 	@mkdir -p $(BUILD_DIR)
 	go build -o $(BUILD_DIR)/$(PROJECT_NAME) $(MAIN)
 
+## Migrate:
+.PHONY: migrate
+migrate: ## Migrate database
+	@echo "  >  Migrating database..."
+	docker run --rm --name golang-migrate -v $(PROJECT_DIR)/migrations:/migrations --network host migrate/migrate -verbose -path=/migrations/ -database 'postgres://test:test@localhost:5432/remote-ctrl?sslmode=disable' up
+
 ## Lint:
 .PHONY: lint
 lint: lint-go lint-dockerfile #lint-yaml ## Run all available linters
