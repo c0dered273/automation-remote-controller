@@ -28,8 +28,8 @@ func main() {
 	sendChan := make(chan model.NotifyEvent, 1)
 	receiveChan := make(chan model.ActionEvent)
 
-	serverPoll := client.NewPollService(ctx, sendChan, receiveChan, config, logger)
-	serverPoll.Poll()
+	serverPolling := client.NewPollService(ctx, sendChan, receiveChan, config, logger)
+	serverPolling.Polling()
 
 	driverManager := plc4go.NewPlcDriverManager()
 	drivers.RegisterModbusTcpDriver(driverManager)
@@ -37,8 +37,8 @@ func main() {
 	if err != nil {
 		logger.Fatal().Err(err).Send()
 	}
-	plcPoll := plc.NewPLCPollService(ctx, conn, sendChan, receiveChan, logger)
-	plcPoll.Polling(config)
+	plcPolling := plc.NewPLCPollService(ctx, conn, sendChan, receiveChan, logger)
+	plcPolling.Polling(config)
 
 	<-shutdown
 	_ = conn.Close()

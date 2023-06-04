@@ -362,6 +362,7 @@ func (dc *driverConn) closeConn() error {
 	return nil
 }
 
+// resultWithTimeout оборачивает вызов plc4go проверкой таймаута соединения
 func resultWithTimeout[T responseWithErr](respChan <-chan T, timeout time.Duration) (T, error) {
 	var empty T
 	if timeout != 0 {

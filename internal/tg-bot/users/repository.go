@@ -9,6 +9,7 @@ import (
 	"github.com/jmoiron/sqlx"
 )
 
+// UserRepository описывает методы работы с сущностью пользователя
 type UserRepository interface {
 	// UpdateChatIDByTGUser обновляет идентификатор чата, с которым работает пользователь
 	UpdateChatIDByTGUser(ctx context.Context, tgName string, chatID int64) error

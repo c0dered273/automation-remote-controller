@@ -19,6 +19,9 @@ const (
 	NegativeCross = "\u274C"
 )
 
+// @Description Обработчики команд от telegram api
+
+// MenuHandler /menu - главное меню
 func MenuHandler(ctx context.Context, logger zerolog.Logger, userService users.UserService) func(update tgbotapi.Update, botApi *tgbotapi.BotAPI) {
 	return func(update tgbotapi.Update, botApi *tgbotapi.BotAPI) {
 		username := update.Message.From.UserName
@@ -43,6 +46,7 @@ func MenuHandler(ctx context.Context, logger zerolog.Logger, userService users.U
 	}
 }
 
+// StartNotificationsHandler /start - включить уведомления
 func StartNotificationsHandler(ctx context.Context, logger zerolog.Logger, userService users.UserService, clients *collections.ConcurrentMap[string, *model.ClientEvents]) func(update tgbotapi.Update, botApi *tgbotapi.BotAPI) {
 	return func(update tgbotapi.Update, botApi *tgbotapi.BotAPI) {
 		username := update.Message.From.UserName
@@ -67,6 +71,7 @@ func StartNotificationsHandler(ctx context.Context, logger zerolog.Logger, userS
 	}
 }
 
+// StopNotificationsHandler /stop - отключить уведомления
 func StopNotificationsHandler(ctx context.Context, logger zerolog.Logger, userService users.UserService, clients *collections.ConcurrentMap[string, *model.ClientEvents]) func(update tgbotapi.Update, botApi *tgbotapi.BotAPI) {
 	return func(update tgbotapi.Update, botApi *tgbotapi.BotAPI) {
 		username := update.Message.From.UserName
@@ -91,6 +96,7 @@ func StopNotificationsHandler(ctx context.Context, logger zerolog.Logger, userSe
 	}
 }
 
+// StatusHandler :status - состояние систем
 func StatusHandler(ctx context.Context, logger zerolog.Logger, userService users.UserService) func(update tgbotapi.Update, botApi *tgbotapi.BotAPI) {
 	return func(update tgbotapi.Update, botApi *tgbotapi.BotAPI) {
 		callback := tgbotapi.NewCallback(update.CallbackQuery.ID, update.CallbackQuery.Data)
@@ -116,6 +122,7 @@ func StatusHandler(ctx context.Context, logger zerolog.Logger, userService users
 	}
 }
 
+// LightControlHandler :lightControl - меню управления освещением
 func LightControlHandler(ctx context.Context, logger zerolog.Logger, userService users.UserService) func(update tgbotapi.Update, botApi *tgbotapi.BotAPI) {
 	return func(update tgbotapi.Update, botApi *tgbotapi.BotAPI) {
 		callback := tgbotapi.NewCallback(update.CallbackQuery.ID, update.CallbackQuery.Data)
@@ -153,6 +160,8 @@ func LightControlHandler(ctx context.Context, logger zerolog.Logger, userService
 	}
 }
 
+// LampMenuHandler :lampMenu - меню управления лампой
+// параметр lampID - идентификатор устройства, для которого нужно вывести меню
 func LampMenuHandler(ctx context.Context, logger zerolog.Logger, userService users.UserService) func(update tgbotapi.Update, botApi *tgbotapi.BotAPI) {
 	return func(update tgbotapi.Update, botApi *tgbotapi.BotAPI) {
 		callback := tgbotapi.NewCallback(update.CallbackQuery.ID, update.CallbackQuery.Data)
@@ -191,6 +200,9 @@ func LampMenuHandler(ctx context.Context, logger zerolog.Logger, userService use
 	}
 }
 
+// LampSwitchHandler :lampSwitch - выполнение указанной команды для устройства
+// параметр lampID - идентификатор устройства, для которого нужно выполнить команду
+// параметр action - команды
 func LampSwitchHandler(ctx context.Context, logger zerolog.Logger, userService users.UserService, clients *collections.ConcurrentMap[string, *model.ClientEvents]) func(update tgbotapi.Update, botApi *tgbotapi.BotAPI) {
 	return func(update tgbotapi.Update, botApi *tgbotapi.BotAPI) {
 		callback := tgbotapi.NewCallback(update.CallbackQuery.ID, update.CallbackQuery.Data)

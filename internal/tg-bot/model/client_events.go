@@ -11,17 +11,26 @@ import (
 	"github.com/rs/zerolog"
 )
 
+// ClientEvents обеспечивает связь между пользователем telegram и конкретным клиентским приложением
+// структура содержит каналы, которые привязаны к стриму подключенного клиентского приложения
 type ClientEvents struct {
-	ctx       context.Context
-	Recv      chan *Event
-	Send      chan *Event
-	Err       chan error
-	chatID    int64
+	ctx context.Context
+	// Recv прием сообщений от клиентского приложения
+	Recv chan *Event
+	// Send отправка сообщений в клиентское приложение
+	Send chan *Event
+	// Err обработка ошибок, при появлении в канале объекта, клиентский стрим закрывается
+	Err chan error
+	// chatID идентификатор чата telegram, в который будут отправлены уведомления
+	chatID int64
+	// botNotify канал отправки сообщений непосредственно в чат пользователю
 	botNotify chan<- Notification
-	IsNotify  bool
-	logger    zerolog.Logger
+	// IsNotify флаг показывает отправлять ли пользователю сообщения
+	IsNotify bool
+	logger   zerolog.Logger
 }
 
+// SendAction отправить событие клиентскому приложению
 func (e *ClientEvents) SendAction(a pkgmodel.ActionEvent) error {
 	payload, err := json.Marshal(a)
 	if err != nil {
@@ -39,6 +48,7 @@ func (e *ClientEvents) SendAction(a pkgmodel.ActionEvent) error {
 	return nil
 }
 
+// ContinuousReadAndNotify ожидает событие от клиентского приложения и передает его непосредственно в чат пользователю
 func (e *ClientEvents) ContinuousReadAndNotify() {
 	go func() {
 		for {
@@ -64,6 +74,7 @@ func (e *ClientEvents) ContinuousReadAndNotify() {
 	}()
 }
 
+// NewClientEvents создает настроенную структуру ClientEvents
 func NewClientEvents(ctx context.Context, chatID int64, botNotify chan<- Notification, isNotify bool, logger zerolog.Logger) *ClientEvents {
 	return &ClientEvents{
 		ctx:       ctx,

@@ -10,6 +10,7 @@ import (
 	"github.com/rs/zerolog"
 )
 
+// NewBotServer конфигурирует обработчики команд telegram и возвращает готового к работе бота
 func NewBotServer(
 	ctx context.Context,
 	token string,

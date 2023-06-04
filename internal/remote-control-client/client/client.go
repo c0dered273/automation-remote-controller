@@ -35,11 +35,6 @@ var (
 	reconnectDelay = 5 * time.Second
 )
 
-type Clients struct {
-	Ctx                     context.Context
-	EventMultiServiceClient proto.EventMultiServiceClient
-}
-
 // ReadConfig формирует и валидирует конфигурацию приложения
 func ReadConfig() *configs.RClientConfig {
 	logger := loggers.NewDefaultLogger(LogWriter)
@@ -77,6 +72,7 @@ func newClientCredentials(config *configs.RClientConfig) (credentials.TransportC
 	return credentials.NewTLS(tlsConfig), nil
 }
 
+// newConnection создает и настраивает gRPC соединение
 func newConnection(creds credentials.TransportCredentials, config *configs.RClientConfig, logger zerolog.Logger) (*grpc.ClientConn, error) {
 	connectParams := grpc.ConnectParams{
 		MinConnectTimeout: 15 * time.Second,
@@ -236,8 +232,8 @@ func (s *PollService) continuousRecv() {
 	}
 }
 
-// Poll запускает циклическую обработку событий с сервера и отдает события клиента в тот-же поток
-func (s *PollService) Poll() {
+// Polling запускает циклическую обработку событий с сервера и отдает события клиента в тот-же поток
+func (s *PollService) Polling() {
 	go s.continuousSend()
 	go s.continuousRecv()
 }

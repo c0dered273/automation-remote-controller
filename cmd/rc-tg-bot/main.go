@@ -15,6 +15,10 @@ import (
 	"github.com/c0dered273/automation-remote-controller/pkg/loggers"
 )
 
+//	@Title			rc-tg-bot
+//	@Description	Приложение позволяет передавать команды и получать сообщения пользователю telegram с одной стороны и клиентскому приложению с другой
+//	@Version		0.0.1
+
 func main() {
 	shutdown := make(chan os.Signal, 1)
 	signal.Notify(shutdown, syscall.SIGHUP, syscall.SIGINT, syscall.SIGTERM, syscall.SIGQUIT)

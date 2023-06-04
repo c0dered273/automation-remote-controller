@@ -17,6 +17,11 @@ import (
 var (
 	configFileType = "yaml"
 
+	// Переменные окружения
+	// SERVER_ADDR - адрес gRPC сервера к которому необходимо подключиться
+	// CA_CERT - путь к коневому сертификату
+	// CLIENT_CERT - путь к клиентскому сертификату
+	// PLC_URI - строка подключения к контроллеру по протоколу ModBus
 	envVars = []string{
 		"SERVER_ADDR",
 		"CA_CERT",
@@ -25,6 +30,7 @@ var (
 	}
 )
 
+// RClientConfig настройки клиентского приложения
 type RClientConfig struct {
 	Name           string          `mapstructure:"name"`
 	ServerAddr     string          `mapstructure:"server_addr"`
@@ -38,15 +44,22 @@ type RClientConfig struct {
 	configs.Logger `mapstructure:"logger"`
 }
 
+// Devices перечень устройств, подключенных к контроллеру
 type Devices struct {
-	DeviceID   string            `mapstructure:"device_id"`
-	TagAddress string            `mapstructure:"tag_address"`
-	Values     map[string]string `mapstructure:"values"`
+	// DeviceID Идентификатор устройства, с помощью него осуществляется привязка команды из сообщения к конкретному устройству
+	DeviceID string `mapstructure:"device_id"`
+	// TagAddress Адрес регистра в контроллере с указанием типа данных
+	TagAddress string `mapstructure:"tag_address"`
+	// Values значение передаваемое в контроллер
+	Values map[string]string `mapstructure:"values"`
 }
 
+// Notifications описывает события, генерируемы е контроллером
 type Notifications struct {
-	TagAddress string            `mapstructure:"tag_address"`
-	Text       map[string]string `mapstructure:"text"`
+	// TagAddress адрес регистра, который генерирует события
+	TagAddress string `mapstructure:"tag_address"`
+	// Text текст события
+	Text map[string]string `mapstructure:"text"`
 }
 
 func setDefaults() {
@@ -86,8 +99,8 @@ func postProcessing(config *RClientConfig) error {
 }
 
 func bindPFlags() error {
-	pflag.StringP("port", "p", viper.GetString("port"), "Server port")
-	pflag.StringP("bot_token", "t", viper.GetString("bot_token"), "Token from @Botfather")
+	pflag.StringP("server_addr", "a", viper.GetString("server_addr"), "gRPC server address")
+	pflag.StringP("plc_uri", "u", viper.GetString("plc_uri"), "PLC connection string")
 	pflag.Parse()
 	err := viper.BindPFlags(pflag.CommandLine)
 	if err != nil {

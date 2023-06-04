@@ -6,10 +6,12 @@ import (
 	"github.com/rs/zerolog"
 )
 
+// Services содержит настроенный сервисный слой приложения
 type Services struct {
 	UserService users.UserService
 }
 
+// NewServices настраивает сервисный слой приложения
 func NewServices(databaseUri string, logger zerolog.Logger) Services {
 	db, err := storage.NewConnection(databaseUri)
 	if err != nil {

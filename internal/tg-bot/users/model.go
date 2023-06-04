@@ -1,5 +1,6 @@
 package users
 
+// User описывает сущность пользователя
 type User struct {
 	Username      string `db:"username"`
 	TGUser        string `db:"tg_user"`

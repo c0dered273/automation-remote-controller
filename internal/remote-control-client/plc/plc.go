@@ -13,6 +13,10 @@ import (
 	"github.com/rs/zerolog"
 )
 
+var (
+	plcReadDelay = 100 * time.Millisecond
+)
+
 // NewPlcConn возвращает настроенный пул соединений с контроллером
 func NewPlcConn(driverManager plc4go.PlcDriverManager, config *configs.RClientConfig) (*ConnPool, error) {
 	conn, err := NewConnPool(driverManager, config.PLCUri)
@@ -66,7 +70,7 @@ func (s *PollService) continuousRead(config *configs.RClientConfig) {
 				riseTrig[n.TagAddress] = true
 			}
 			riseTrig[n.TagAddress] = value[bit]
-			time.Sleep(100 * time.Millisecond)
+			time.Sleep(plcReadDelay)
 		}
 	}
 }

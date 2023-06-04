@@ -11,6 +11,13 @@ import (
 var (
 	configFileType = "yaml"
 
+	// Переменные окружения
+	// PORT - порт на котором необходимо поднять gRPC сервер
+	// BOT_TOKEN - токен бота telegram
+	// CA_CERT - путь к корневому сертификату
+	// SERVER_CERT - путь к сертификату сервера
+	// SERVER_PKey - путь к приватному ключу сервера
+	// DATABASE_URI- строка соединения с БД
 	envVars = []string{
 		"PORT",
 		"BOT_TOKEN",
@@ -21,6 +28,7 @@ var (
 	}
 )
 
+// TGBotCfg настройки бота
 type TGBotCfg struct {
 	Name           string `mapstructure:"name"`
 	Port           string `mapstructure:"port"`
@@ -44,6 +52,7 @@ func postProcessing() {
 func bindPFlags() error {
 	pflag.StringP("port", "p", viper.GetString("port"), "Server port")
 	pflag.StringP("bot_token", "t", viper.GetString("bot_token"), "Token from @Botfather")
+	pflag.StringP("database_uri", "d", viper.GetString("database_uri"), "Database connection string")
 	pflag.Parse()
 	err := viper.BindPFlags(pflag.CommandLine)
 	if err != nil {

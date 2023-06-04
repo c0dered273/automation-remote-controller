@@ -31,6 +31,7 @@ var (
 	}
 )
 
+// ReadConfig формирует и валидирует конфигурацию приложения
 func ReadConfig() *configs.TGBotCfg {
 	logger := loggers.NewDefaultLogger(LogWriter)
 	validator := validators.NewValidatorWithTagFieldName("mapstructure", logger)
@@ -42,6 +43,8 @@ func ReadConfig() *configs.TGBotCfg {
 	return config
 }
 
+// newServerCredentials читает с диска сертификаты и отдает настроенные реквизиты для TLS
+// сервер требует наличие у клиента валидного сертификата, подписанного одним общим корневым сертификатом
 func newServerCredentials(config *configs.TGBotCfg, logger zerolog.Logger) (credentials.TransportCredentials, error) {
 	caPem, err := os.ReadFile(config.CACert)
 	if err != nil {
@@ -68,6 +71,7 @@ func newServerCredentials(config *configs.TGBotCfg, logger zerolog.Logger) (cred
 	return credentials.NewTLS(tlsConfig), nil
 }
 
+// newServerOptions устанавливает опции для gRPC сервера
 func newServerOptions(logger zerolog.Logger, creds credentials.TransportCredentials) []grpc.ServerOption {
 	opts := []grpc.ServerOption{
 		grpc.ChainUnaryInterceptor(
@@ -84,6 +88,7 @@ func newServerOptions(logger zerolog.Logger, creds credentials.TransportCredenti
 	return opts
 }
 
+// NewGRPCServer создает и настраивает gRPC сервер
 func NewGRPCServer(
 	ctx context.Context,
 	config *configs.TGBotCfg,

@@ -15,6 +15,7 @@ import (
 	"google.golang.org/grpc/status"
 )
 
+// EventMultiService обрабатывает соединения от клиентских приложений
 type EventMultiService struct {
 	proto.UnimplementedEventMultiServiceServer
 	ctx         context.Context
@@ -24,6 +25,14 @@ type EventMultiService struct {
 	userService users.UserService
 }
 
+// EventStreaming получает двунаправленный поток отк клиента, достает из метаданных идентификаторы, идентифицирует клиента.
+// В случае валидного клиента создает структуру ClientEvents, добавляет ее в общий словарь,
+// чтобы обработчики команд от telegram могли обратиться к конкретному клиентскому приложению.
+// Также запускается циклический опрос сообщений от клиентского приложения и перенаправление сообщений в каналы,
+// привязанные к конкретному пользователю.
+// Идентификация пользователя происходит в 2 этап:
+// 1. При установке соединения проверяется валидность сертификата пользователя через tls handshake
+// 2. Проверяется существование пользователя с указанным именем и идентификатором сертификата
 func (s *EventMultiService) EventStreaming(stream proto.EventMultiService_EventStreamingServer) error {
 	md, ok := metadata.FromIncomingContext(stream.Context())
 	if !ok {
@@ -107,6 +116,7 @@ func (s *EventMultiService) EventStreaming(stream proto.EventMultiService_EventS
 
 }
 
+// NewEventMultiService создает сервис обслуживания клиентских приложений
 func NewEventMultiService(
 	ctx context.Context,
 	logger zerolog.Logger,

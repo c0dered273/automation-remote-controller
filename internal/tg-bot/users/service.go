@@ -2,11 +2,17 @@ package users
 
 import "context"
 
+// UserService сервис обрабатывает запросы с пользователями
 type UserService interface {
+	// SetNotification устанавливает флаг отправки уведомлений пользователю
 	SetNotification(ctx context.Context, tgName string, flag bool) error
+	// SetUserChatID сохраняет/обновляет идентификатор чата telegram с которого обращался пользователь
 	SetUserChatID(ctx context.Context, tgName string, chatID int64) error
-	FindUser(ctx context.Context, tgName string) (User, error)
+	// FindUserByTGName поиск пользователя по имени в telegram
+	FindUserByTGName(ctx context.Context, tgName string) (User, error)
+	// IsUserExists проверяет, существует ли пользователь с указанным именем telegram
 	IsUserExists(ctx context.Context, tgName string) bool
+	// FindUserByClientID поиск пользователя по идентификатору клиентского приложения
 	FindUserByClientID(ctx context.Context, clientID string) (User, error)
 }
 
@@ -30,7 +36,7 @@ func (u UserServiceImpl) SetUserChatID(ctx context.Context, tgName string, chatI
 	return nil
 }
 
-func (u UserServiceImpl) FindUser(ctx context.Context, tgName string) (User, error) {
+func (u UserServiceImpl) FindUserByTGName(ctx context.Context, tgName string) (User, error) {
 	user, err := u.userRepo.FindUserByTGUser(ctx, tgName)
 	if err != nil {
 		return User{}, err
@@ -51,6 +57,7 @@ func (u UserServiceImpl) FindUserByClientID(ctx context.Context, clientID string
 	return user, err
 }
 
+// NewUserService создает сервис пользователей
 func NewUserService(userRepo UserRepository) UserServiceImpl {
 	return UserServiceImpl{
 		userRepo: userRepo,
