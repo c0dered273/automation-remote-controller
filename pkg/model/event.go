@@ -1,11 +1,8 @@
 package model
 
 import (
-	"errors"
 	"fmt"
 	"strings"
-
-	"github.com/c0dered273/automation-remote-controller/pkg/proto"
 )
 
 type Action uint8
@@ -34,12 +31,7 @@ func NewAction(s string) (Action, error) {
 			return Action(i), nil
 		}
 	}
-	return 0, errors.New(fmt.Sprintf("actions: failed to parse action <%s>", s))
-}
-
-type Event struct {
-	Event *proto.Event
-	Err   error
+	return 0, fmt.Errorf("actions: failed to parse action <%s>", s)
 }
 
 type NotifyEvent struct {

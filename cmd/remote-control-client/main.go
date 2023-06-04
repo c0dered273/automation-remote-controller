@@ -35,7 +35,7 @@ func main() {
 	drivers.RegisterModbusTcpDriver(driverManager)
 	conn, err := plc.NewPlcConn(driverManager, config)
 	if err != nil {
-		logger.Fatal().Err(err)
+		logger.Fatal().Err(err).Send()
 	}
 	plcPoll := plc.NewPLCPollService(ctx, conn, sendChan, receiveChan, logger)
 	plcPoll.Polling(config)

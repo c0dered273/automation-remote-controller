@@ -162,7 +162,7 @@ func (s *PollService) continuousSend() {
 		case <-s.ctx.Done():
 			err := s.stream.CloseSend()
 			if err != nil {
-				s.logger.Fatal().Err(err)
+				s.logger.Fatal().Err(err).Send()
 				return
 			}
 		case n := <-s.sendChan:
@@ -227,7 +227,7 @@ func (s *PollService) continuousRecv() {
 			a := model.ActionEvent{}
 			err = json.Unmarshal(resp.Payload, &a)
 			if err != nil {
-				s.logger.Error().Err(err)
+				s.logger.Error().Err(err).Send()
 				continue
 			}
 			s.receiveChan <- a

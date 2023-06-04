@@ -29,7 +29,7 @@ func (r SQLClientRepo) SaveClient(ctx context.Context, client Client) error {
 	return nil
 }
 
-func NewClientRepo(db *sqlx.DB) SQLClientRepo {
+func NewRepo(db *sqlx.DB) SQLClientRepo {
 	return SQLClientRepo{
 		db: db,
 	}

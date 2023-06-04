@@ -1,50 +1,80 @@
 package server
 
 import (
+	"context"
 	"encoding/json"
-	"net/url"
 
-	"github.com/c0dered273/automation-remote-controller/internal/tg-bot/configs"
+	"github.com/c0dered273/automation-remote-controller/internal/tg-bot/model"
+	"github.com/c0dered273/automation-remote-controller/internal/tg-bot/utils"
 	tgbotapi "github.com/go-telegram-bot-api/telegram-bot-api/v5"
 	"github.com/rs/zerolog"
 )
 
 type TGBot struct {
-	botApi  *tgbotapi.BotAPI
-	handler MessageHandler
+	ctx          context.Context
+	botApi       *tgbotapi.BotAPI
+	notification chan model.Notification
+	handler      MessageHandler
+	logger       zerolog.Logger
 }
 
-func (b *TGBot) Serve() {
+func (b *TGBot) notify(n model.Notification) error {
+	msg := tgbotapi.NewMessage(n.ChatID, n.Text)
+	if _, err := b.botApi.Send(msg); err != nil {
+		return err
+	}
+	return nil
+}
+
+func (b *TGBot) GetNotifyChan() chan<- model.Notification {
+	return b.notification
+}
+
+func (b *TGBot) ServeAndNotify() {
 	u := tgbotapi.NewUpdate(0)
 	u.Timeout = 60
 	updates := b.botApi.GetUpdatesChan(u)
-	for update := range updates {
-		b.handler.ServeBotMessage(update, b.botApi)
-	}
-}
-
-func (b *TGBot) Notification() func(chatID int64, text string) error {
-	return func(chatID int64, text string) error {
-		msg := tgbotapi.NewMessage(chatID, text)
-		if _, err := b.botApi.Send(msg); err != nil {
-			return err
+	go func() {
+		for update := range updates {
+			select {
+			default:
+			case <-b.ctx.Done():
+				return
+			}
+			b.handler.ServeBotMessage(update, b.botApi)
 		}
-		return nil
-	}
+	}()
+	go func() {
+		for {
+			select {
+			case <-b.ctx.Done():
+				return
+			case n := <-b.notification:
+				err := b.notify(n)
+				if err != nil {
+					b.logger.Error().Err(err).Send()
+				}
+				continue
+			}
+		}
+	}()
 }
 
-func NewTGBot(config *configs.TGBotCfg, logger zerolog.Logger, handler MessageHandler) (*TGBot, error) {
-	bot, err := tgbotapi.NewBotAPI(config.BotToken)
+func NewTGBot(ctx context.Context, token string, handler MessageHandler, logger zerolog.Logger) (*TGBot, error) {
+	bot, err := tgbotapi.NewBotAPI(token)
 	if err != nil {
 		return nil, err
 	}
 
-	bot.Debug = true
+	// bot.Debug = true
 
 	logger.Info().Msgf("remote-control-tg-bot: authorized on account: %s", bot.Self.UserName)
 	return &TGBot{
-		botApi:  bot,
-		handler: handler,
+		ctx:          ctx,
+		botApi:       bot,
+		notification: make(chan model.Notification, 1),
+		handler:      handler,
+		logger:       logger,
 	}, nil
 }
 
@@ -67,7 +97,7 @@ func (h *DefaultMessageHandler) ServeBotMessage(update tgbotapi.Update, botApi *
 			return
 		}
 	} else if update.CallbackQuery != nil {
-		handlerName := ParseReqHandler(update.CallbackQuery.Data)
+		handlerName := utils.ParseReqHandler(update.CallbackQuery.Data)
 		handler, ok := h.callbacks[handlerName]
 		if ok {
 			handler(update, botApi)
@@ -75,7 +105,6 @@ func (h *DefaultMessageHandler) ServeBotMessage(update tgbotapi.Update, botApi *
 		}
 	}
 	h.unknownRoute(update, botApi)
-	return
 }
 
 func (h *DefaultMessageHandler) Message(text string, handler func(update tgbotapi.Update, botApi *tgbotapi.BotAPI)) {
@@ -88,27 +117,6 @@ func (h *DefaultMessageHandler) Callback(handlerName string, handler func(update
 	if len(handlerName) > 0 {
 		h.callbacks[handlerName] = handler
 	}
-}
-
-func ParseReqHandler(reqURL string) string {
-	reqUrl, err := url.Parse(reqURL)
-	if err != nil {
-		return ""
-	}
-	return reqUrl.Opaque
-}
-
-func ParseReqParams(reqURL string) map[string][]string {
-	empty := make(map[string][]string)
-	reqUrl, err := url.Parse(reqURL)
-	if err != nil {
-		return empty
-	}
-	params, err := url.ParseQuery(reqUrl.RawQuery)
-	if err != nil {
-		return empty
-	}
-	return params
 }
 
 func NewMessageHandler(logger zerolog.Logger) *DefaultMessageHandler {

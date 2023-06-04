@@ -206,7 +206,7 @@ func RequestLoggerMiddleware(logger zerolog.Logger) func(next echo.HandlerFunc) 
 				Str("URI", v.URI).
 				Int("status", v.Status).
 				Str("method", c.Request().Method).
-				//Str("headers", fmt.Sprint(c.Request().Header)).
+				// Str("headers", fmt.Sprint(c.Request().Header)).
 				Str("query_params", fmt.Sprint(c.Request().URL.Query())).
 				Str("latency", fmt.Sprintf("%d ms", v.Latency.Milliseconds())).
 				Msg("request")

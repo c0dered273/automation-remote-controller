@@ -43,7 +43,7 @@ func NewServices(config *configs.UserAccountConfig, logger zerolog.Logger) (Serv
 	userService := users.NewUserService(userRepo)
 
 	// Clients
-	clientRepo := clients.NewClientRepo(db)
+	clientRepo := clients.NewRepo(db)
 	clientService := clients.NewClientService(clientRepo, userRepo, config.Client)
 
 	return Services{

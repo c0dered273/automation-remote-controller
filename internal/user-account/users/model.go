@@ -15,11 +15,7 @@ type NewUserRequest struct {
 }
 
 func (r NewUserRequest) toUser() User {
-	return User{
-		Username: r.Username,
-		Password: r.Password,
-		TGUser:   r.TGUser,
-	}
+	return User(r)
 }
 
 // UserAuthRequest запрос авторизации пользователя

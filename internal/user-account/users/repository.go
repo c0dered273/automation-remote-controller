@@ -24,8 +24,8 @@ type SQLUserRepo struct {
 }
 
 func (r SQLUserRepo) SaveUser(ctx context.Context, user User) error {
-	sqlQuery := `INSERT INTO users(username, password, tg_user) 
-			VALUES(:username, crypt(:password, gen_salt('bf')), :tg_user) 
+	sqlQuery := `INSERT INTO users(username, password, tg_user, notify_enabled) 
+			VALUES(:username, crypt(:password, gen_salt('bf')), :tg_user, true) 
 			ON CONFLICT DO NOTHING`
 
 	res, err := r.db.NamedExecContext(ctx, sqlQuery, user)
