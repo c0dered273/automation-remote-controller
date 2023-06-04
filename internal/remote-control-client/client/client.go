@@ -26,7 +26,7 @@ import (
 
 var (
 	LogWriter      = os.Stdout
-	configFileName = "remote-control-client"
+	configFileName = "remote_control_client_config"
 	configFilePath = []string{
 		".",
 		"./configs/",

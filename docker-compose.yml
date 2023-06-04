@@ -1,0 +1,61 @@
+version: "3"
+services:
+  db:
+    image: postgres:15
+    hostname: postgresql-15
+    container_name: postgresql-15
+    ports:
+      - "5432:5432"
+    environment:
+      POSTGRES_USER: postgres
+      POSTGRES_PASSWORD: postgres
+      # POSTGRES_DB:
+    volumes:
+      - postgresql:/var/lib/postgresql
+      - postgresql_data:/var/lib/postgresql/data
+
+  user-account-api:
+    depends_on:
+      - db
+    image: user-account-api
+    hostname: user-account-api
+    container_name: user-account-api
+    environment:
+      DATABASE_URI: postgres://test:test@192.168.1.11:5432/remote-ctrl
+    ports:
+      - "8080:8080"
+    volumes:
+      - ./cert:/cert:ro
+      - ./configs/user_account_config.yml:/configs/user_account_config.yml:ro
+
+  rc-tg-bot:
+    depends_on:
+      - db
+    image: rc-tg-bot
+    hostname: rc-tg-bot
+    container_name: rc-tg-bot
+    environment:
+      DATABASE_URI: postgres://test:test@192.168.1.11:5432/remote-ctrl
+      BOT_TOKEN: "SOME_TOKEN"
+      PORT: 8081
+    volumes:
+      - ./cert:/cert:ro
+      - ./configs/tgbot_config.yml:/configs/tgbot_config.yml:ro
+
+  remote-control-client:
+    depends_on:
+      - rc-tg-bot
+    image: remote-control-client
+    hostname: remote-control-client
+    container_name: remote-control-client
+    environment:
+      SERVER_ADDR: 192.168.1.11:8081
+      PLC_URI: "modbus-tcp://10.0.1.10?unit-identifier=1&request-timeout=5000"
+    volumes:
+      - ./cert:/cert:ro
+      - ./configs/remote_control_client_config.yml:/configs/remote_control_client_config.yml:ro
+
+
+volumes:
+  postgresql:
+  postgresql_data:

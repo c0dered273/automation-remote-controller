@@ -1,0 +1,129 @@
+<mxfile host="Electron" modified="2023-06-04T13:36:07.259Z" agent="Mozilla/5.0 (Macintosh; Intel Mac OS X 10_15_7) AppleWebKit/537.36 (KHTML, like Gecko) draw.io/21.2.8 Chrome/112.0.5615.165 Electron/24.2.0 Safari/537.36" etag="KpyRfFcUTq_rtsITBNfW" version="21.2.8" type="device">
+  <diagram name="Страница 1" id="xbHyFEGYpX9EO09Bw-Ck">
+    <mxGraphModel dx="2313" dy="1991" grid="1" gridSize="10" guides="1" tooltips="1" connect="1" arrows="1" fold="1" page="1" pageScale="1" pageWidth="827" pageHeight="1169" math="0" shadow="0">
+      <root>
+        <mxCell id="0" />
+        <mxCell id="1" parent="0" />
+        <mxCell id="I0nJcWW9iX1-Ce558i7r-4" value="" style="endArrow=none;dashed=1;html=1;rounded=0;" parent="1" edge="1">
+          <mxGeometry width="50" height="50" relative="1" as="geometry">
+            <mxPoint x="-220" y="180" as="sourcePoint" />
+            <mxPoint x="457.25" y="180" as="targetPoint" />
+          </mxGeometry>
+        </mxCell>
+        <mxCell id="I0nJcWW9iX1-Ce558i7r-8" value="&amp;nbsp;NAT&amp;nbsp;" style="edgeLabel;html=1;align=center;verticalAlign=middle;resizable=0;points=[];" parent="1" vertex="1" connectable="0">
+          <mxGeometry x="194" y="170" as="geometry">
+            <mxPoint x="-31" as="offset" />
+          </mxGeometry>
+        </mxCell>
+        <mxCell id="I0nJcWW9iX1-Ce558i7r-32" value="&lt;ul&gt;&lt;li&gt;Инициирует соединение с ботом&lt;/li&gt;&lt;li&gt;Преобразует нажатие кнопок в боте в пакеты ModBus TCP&lt;/li&gt;&lt;li&gt;Преобразует теги контроллера в оповещения пользователя&amp;nbsp;&lt;/li&gt;&lt;/ul&gt;" style="text;html=1;align=left;verticalAlign=middle;resizable=0;points=[];autosize=1;strokeColor=none;fillColor=none;" parent="1" vertex="1">
+          <mxGeometry x="340" y="201" width="410" height="80" as="geometry" />
+        </mxCell>
+        <mxCell id="I0nJcWW9iX1-Ce558i7r-33" value="&lt;ul&gt;&lt;li&gt;&lt;span style=&quot;background-color: initial;&quot;&gt;Взаимодействие с Telegram Bot API&lt;/span&gt;&lt;/li&gt;&lt;li&gt;Авторизует клиентские приложения по информации из сертификата&lt;/li&gt;&lt;li&gt;Перенаправляет команды бота в кластер умного дома&lt;/li&gt;&lt;/ul&gt;" style="text;html=1;align=left;verticalAlign=middle;resizable=0;points=[];autosize=1;strokeColor=none;fillColor=none;" parent="1" vertex="1">
+          <mxGeometry x="315" y="-25" width="460" height="80" as="geometry" />
+        </mxCell>
+        <mxCell id="I0nJcWW9iX1-Ce558i7r-40" value="Легенда" style="text;html=1;align=center;verticalAlign=middle;resizable=0;points=[];autosize=1;strokeColor=none;fillColor=none;" parent="1" vertex="1">
+          <mxGeometry x="-90" y="520" width="70" height="30" as="geometry" />
+        </mxCell>
+        <mxCell id="I0nJcWW9iX1-Ce558i7r-42" value="" style="rounded=0;whiteSpace=wrap;html=1;fillColor=#dae8fc;strokeColor=#6c8ebf;" parent="1" vertex="1">
+          <mxGeometry x="-76.25" y="555" width="36.25" height="20" as="geometry" />
+        </mxCell>
+        <mxCell id="I0nJcWW9iX1-Ce558i7r-43" value="- разрабатываемые приложения на go" style="text;html=1;align=left;verticalAlign=middle;resizable=0;points=[];autosize=1;strokeColor=none;fillColor=none;" parent="1" vertex="1">
+          <mxGeometry x="-30" y="550" width="240" height="30" as="geometry" />
+        </mxCell>
+        <mxCell id="I0nJcWW9iX1-Ce558i7r-44" value="" style="rounded=0;whiteSpace=wrap;html=1;fillColor=#d5e8d4;strokeColor=#82b366;" parent="1" vertex="1">
+          <mxGeometry x="-76.25" y="585" width="36.25" height="20" as="geometry" />
+        </mxCell>
+        <mxCell id="I0nJcWW9iX1-Ce558i7r-45" value="- сторонние приложения, развернутые в кластере" style="text;html=1;align=left;verticalAlign=middle;resizable=0;points=[];autosize=1;strokeColor=none;fillColor=none;" parent="1" vertex="1">
+          <mxGeometry x="-30" y="580" width="310" height="30" as="geometry" />
+        </mxCell>
+        <mxCell id="cGNJQK7I670re0k1JRUs-3" style="edgeStyle=orthogonalEdgeStyle;rounded=0;orthogonalLoop=1;jettySize=auto;html=1;exitX=1;exitY=0.5;exitDx=0;exitDy=0;entryX=0;entryY=0.5;entryDx=0;entryDy=0;startArrow=classic;startFill=1;" parent="1" source="vvM2mCVVcLqGKfffvQQ3-2" target="I0nJcWW9iX1-Ce558i7r-1" edge="1">
+          <mxGeometry relative="1" as="geometry" />
+        </mxCell>
+        <mxCell id="vvM2mCVVcLqGKfffvQQ3-2" value="Telegram bot API" style="rounded=0;whiteSpace=wrap;html=1;" parent="1" vertex="1">
+          <mxGeometry x="-200" y="-15" width="120" height="60" as="geometry" />
+        </mxCell>
+        <mxCell id="cGNJQK7I670re0k1JRUs-6" value="gRPC" style="edgeStyle=orthogonalEdgeStyle;rounded=0;orthogonalLoop=1;jettySize=auto;html=1;exitX=0.5;exitY=0;exitDx=0;exitDy=0;entryX=0.5;entryY=1;entryDx=0;entryDy=0;" parent="1" source="I0nJcWW9iX1-Ce558i7r-2" target="I0nJcWW9iX1-Ce558i7r-1" edge="1">
+          <mxGeometry x="0.2169" y="-28" relative="1" as="geometry">
+            <mxPoint as="offset" />
+          </mxGeometry>
+        </mxCell>
+        <mxCell id="I0nJcWW9iX1-Ce558i7r-2" value="remote-control-client" style="rounded=0;whiteSpace=wrap;html=1;fillColor=#dae8fc;strokeColor=#6c8ebf;" parent="1" vertex="1">
+          <mxGeometry x="72.25" y="211" width="120" height="60" as="geometry" />
+        </mxCell>
+        <mxCell id="I0nJcWW9iX1-Ce558i7r-22" style="edgeStyle=orthogonalEdgeStyle;rounded=0;orthogonalLoop=1;jettySize=auto;html=1;entryX=0.5;entryY=0;entryDx=0;entryDy=0;startArrow=classic;startFill=1;" parent="1" source="I0nJcWW9iX1-Ce558i7r-2" target="I0nJcWW9iX1-Ce558i7r-21" edge="1">
+          <mxGeometry relative="1" as="geometry" />
+        </mxCell>
+        <mxCell id="I0nJcWW9iX1-Ce558i7r-23" value="ModBus TCP" style="edgeLabel;html=1;align=center;verticalAlign=middle;resizable=0;points=[];" parent="I0nJcWW9iX1-Ce558i7r-22" vertex="1" connectable="0">
+          <mxGeometry x="-0.0666" y="-1" relative="1" as="geometry">
+            <mxPoint as="offset" />
+          </mxGeometry>
+        </mxCell>
+        <mxCell id="I0nJcWW9iX1-Ce558i7r-21" value="Хаб умного дома" style="rounded=0;whiteSpace=wrap;html=1;fillColor=#d5e8d4;strokeColor=#82b366;" parent="1" vertex="1">
+          <mxGeometry x="72.25" y="401" width="120" height="60" as="geometry" />
+        </mxCell>
+        <mxCell id="cGNJQK7I670re0k1JRUs-16" style="edgeStyle=orthogonalEdgeStyle;rounded=0;orthogonalLoop=1;jettySize=auto;html=1;entryX=0.5;entryY=1;entryDx=0;entryDy=0;" parent="1" source="cGNJQK7I670re0k1JRUs-7" target="I0nJcWW9iX1-Ce558i7r-1" edge="1">
+          <mxGeometry relative="1" as="geometry">
+            <Array as="points">
+              <mxPoint x="290" y="130" />
+              <mxPoint x="132" y="130" />
+            </Array>
+          </mxGeometry>
+        </mxCell>
+        <mxCell id="cGNJQK7I670re0k1JRUs-7" value="remote-control-client" style="rounded=0;whiteSpace=wrap;html=1;fillColor=#dae8fc;strokeColor=#6c8ebf;" parent="1" vertex="1">
+          <mxGeometry x="230" y="211" width="120" height="60" as="geometry" />
+        </mxCell>
+        <mxCell id="cGNJQK7I670re0k1JRUs-8" style="edgeStyle=orthogonalEdgeStyle;rounded=0;orthogonalLoop=1;jettySize=auto;html=1;entryX=0.5;entryY=0;entryDx=0;entryDy=0;startArrow=classic;startFill=1;" parent="1" source="cGNJQK7I670re0k1JRUs-7" target="cGNJQK7I670re0k1JRUs-10" edge="1">
+          <mxGeometry relative="1" as="geometry" />
+        </mxCell>
+        <mxCell id="cGNJQK7I670re0k1JRUs-9" value="ModBus TCP" style="edgeLabel;html=1;align=center;verticalAlign=middle;resizable=0;points=[];" parent="cGNJQK7I670re0k1JRUs-8" vertex="1" connectable="0">
+          <mxGeometry x="-0.0666" y="-1" relative="1" as="geometry">
+            <mxPoint as="offset" />
+          </mxGeometry>
+        </mxCell>
+        <mxCell id="cGNJQK7I670re0k1JRUs-10" value="Хаб умного дома" style="rounded=0;whiteSpace=wrap;html=1;fillColor=#d5e8d4;strokeColor=#82b366;" parent="1" vertex="1">
+          <mxGeometry x="230" y="401" width="120" height="60" as="geometry" />
+        </mxCell>
+        <mxCell id="cGNJQK7I670re0k1JRUs-15" style="edgeStyle=orthogonalEdgeStyle;rounded=0;orthogonalLoop=1;jettySize=auto;html=1;entryX=0.5;entryY=1;entryDx=0;entryDy=0;" parent="1" source="cGNJQK7I670re0k1JRUs-11" target="I0nJcWW9iX1-Ce558i7r-1" edge="1">
+          <mxGeometry relative="1" as="geometry">
+            <Array as="points">
+              <mxPoint x="-32" y="130" />
+              <mxPoint x="132" y="130" />
+            </Array>
+          </mxGeometry>
+        </mxCell>
+        <mxCell id="cGNJQK7I670re0k1JRUs-11" value="remote-control-client" style="rounded=0;whiteSpace=wrap;html=1;fillColor=#dae8fc;strokeColor=#6c8ebf;" parent="1" vertex="1">
+          <mxGeometry x="-92.25" y="211" width="120" height="60" as="geometry" />
+        </mxCell>
+        <mxCell id="cGNJQK7I670re0k1JRUs-12" style="edgeStyle=orthogonalEdgeStyle;rounded=0;orthogonalLoop=1;jettySize=auto;html=1;entryX=0.5;entryY=0;entryDx=0;entryDy=0;startArrow=classic;startFill=1;" parent="1" source="cGNJQK7I670re0k1JRUs-11" target="cGNJQK7I670re0k1JRUs-14" edge="1">
+          <mxGeometry relative="1" as="geometry" />
+        </mxCell>
+        <mxCell id="cGNJQK7I670re0k1JRUs-13" value="ModBus TCP" style="edgeLabel;html=1;align=center;verticalAlign=middle;resizable=0;points=[];" parent="cGNJQK7I670re0k1JRUs-12" vertex="1" connectable="0">
+          <mxGeometry x="-0.0666" y="-1" relative="1" as="geometry">
+            <mxPoint as="offset" />
+          </mxGeometry>
+        </mxCell>
+        <mxCell id="cGNJQK7I670re0k1JRUs-14" value="Хаб умного дома" style="rounded=0;whiteSpace=wrap;html=1;fillColor=#d5e8d4;strokeColor=#82b366;" parent="1" vertex="1">
+          <mxGeometry x="-92.25" y="401" width="120" height="60" as="geometry" />
+        </mxCell>
+        <mxCell id="I0nJcWW9iX1-Ce558i7r-1" value="rc-tg-bot" style="rounded=0;whiteSpace=wrap;html=1;fillColor=#dae8fc;strokeColor=#6c8ebf;" parent="1" vertex="1">
+          <mxGeometry x="37.25" y="-15" width="190" height="60" as="geometry" />
+        </mxCell>
+        <mxCell id="cGNJQK7I670re0k1JRUs-18" style="edgeStyle=orthogonalEdgeStyle;rounded=0;orthogonalLoop=1;jettySize=auto;html=1;entryX=0.5;entryY=0;entryDx=0;entryDy=0;startArrow=classic;startFill=1;" parent="1" source="cGNJQK7I670re0k1JRUs-2" target="I0nJcWW9iX1-Ce558i7r-1" edge="1">
+          <mxGeometry relative="1" as="geometry" />
+        </mxCell>
+        <mxCell id="cGNJQK7I670re0k1JRUs-2" value="PostgreSQL" style="shape=datastore;whiteSpace=wrap;html=1;fillColor=#d5e8d4;strokeColor=#82b366;" parent="1" vertex="1">
+          <mxGeometry x="72.25" y="-160" width="119" height="90" as="geometry" />
+        </mxCell>
+        <mxCell id="cGNJQK7I670re0k1JRUs-19" style="edgeStyle=orthogonalEdgeStyle;rounded=0;orthogonalLoop=1;jettySize=auto;html=1;exitX=0.5;exitY=1;exitDx=0;exitDy=0;entryX=0.5;entryY=0;entryDx=0;entryDy=0;startArrow=classic;startFill=1;" parent="1" source="cGNJQK7I670re0k1JRUs-1" target="cGNJQK7I670re0k1JRUs-2" edge="1">
+          <mxGeometry relative="1" as="geometry" />
+        </mxCell>
+        <mxCell id="cGNJQK7I670re0k1JRUs-1" value="user-account-api" style="rounded=0;whiteSpace=wrap;html=1;fillColor=#dae8fc;strokeColor=#6c8ebf;" parent="1" vertex="1">
+          <mxGeometry x="37.25" y="-270" width="190" height="60" as="geometry" />
+        </mxCell>
+        <mxCell id="cGNJQK7I670re0k1JRUs-17" value="&lt;ul&gt;&lt;li&gt;&lt;span style=&quot;background-color: initial;&quot;&gt;Регистрация нового пользователя&lt;/span&gt;&lt;br&gt;&lt;/li&gt;&lt;li&gt;Аутентификация пользователя&lt;/li&gt;&lt;li&gt;Добавление/удаление клиентского приложения&lt;/li&gt;&lt;li&gt;Выпускает сертификаты для аутентификации клиентского приложения&lt;/li&gt;&lt;/ul&gt;" style="text;html=1;align=left;verticalAlign=middle;resizable=0;points=[];autosize=1;strokeColor=none;fillColor=none;" parent="1" vertex="1">
+          <mxGeometry x="314" y="-290" width="480" height="100" as="geometry" />
+        </mxCell>
+      </root>
+    </mxGraphModel>
+  </diagram>
+</mxfile>

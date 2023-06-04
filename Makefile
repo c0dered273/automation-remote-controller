@@ -45,7 +45,10 @@ coverage: generate ## Run the tests and export the coverage
 build: test ## Build your project and put the output binary in /bin
 	@echo "  >  Building binary..."
 	@mkdir -p $(BUILD_DIR)
-	go build -o $(BUILD_DIR)/$(PROJECT_NAME) $(MAIN)
+	# go build -o $(BUILD_DIR)/$(PROJECT_NAME) $(MAIN)
+	go build -o $(BUILD_DIR)/rc-tg-bot $(PROJECT_DIR)/cmd/rc-tg-bot/main.go
+	go build -o $(BUILD_DIR)/remote-control-client $(PROJECT_DIR)/cmd/remote-control-client/main.go
+	go build -o $(BUILD_DIR)/user-account-api $(PROJECT_DIR)/cmd/user-account-api/main.go
 
 ## Migrate:
 .PHONY: migrate
@@ -55,15 +58,7 @@ migrate: ## Migrate database
 
 ## Lint:
 .PHONY: lint
-lint: lint-go lint-dockerfile #lint-yaml ## Run all available linters
-
-.PHONY: lint-dockerfile
-lint-dockerfile: ## Lint your Dockerfile
-	@echo "  >  Running Dockerfile linter..."
-ifeq ($(shell test -e ./Dockerfile && echo -n yes),yes)
-	@$(eval CONFIG_OPTION = $(shell [ -e $(shell pwd)/.hadolint.yaml ] && echo "-v $(shell pwd)/.hadolint.yaml:/root/.config/hadolint.yaml" || echo "" ))
-	@docker run --rm -i $(CONFIG_OPTION) hadolint/hadolint hadolint - < ./Dockerfile
-endif
+lint: lint-go #lint-yaml ## Run all available linters
 
 .PHONY: lint-go
 lint-go: ## Use golintci-lint on your project
@@ -80,7 +75,10 @@ install: docker-build docker-release
 ## Docker:
 .PHONY: docker-build
 docker-build: ## Use the dockerfile to build the container
-	docker build --rm --tag $(PROJECT_NAME) .
+	#docker build --rm --tag $(PROJECT_NAME) .
+	docker build --rm --tag user-account-api -f ./docker/user-account-api/Dockerfile .
+	docker build --rm --tag rc-tg-bot -f ./docker/rc-tg-bot/Dockerfile .
+	docker build --rm --tag remote-control-client -f ./docker/remote-control-client/Dockerfile .
 
 .PHONY: docker-release
 docker-release: ## Release the container with tag latest and version
