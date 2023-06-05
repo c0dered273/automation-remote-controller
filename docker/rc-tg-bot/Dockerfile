@@ -9,6 +9,6 @@ RUN go build -o rc-tg-bot /build/cmd/rc-tg-bot/main.go
 FROM alpine
 WORKDIR /
 COPY --from=builder /build/rc-tg-bot /rc-tg-bot
-EXPOSE 8080
+EXPOSE 8081
 ENTRYPOINT ["/rc-tg-bot"]
 
