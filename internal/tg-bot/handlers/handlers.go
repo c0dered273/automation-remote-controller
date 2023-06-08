@@ -7,7 +7,6 @@ import (
 
 	"github.com/c0dered273/automation-remote-controller/internal/tg-bot/model"
 	"github.com/c0dered273/automation-remote-controller/internal/tg-bot/users"
-	"github.com/c0dered273/automation-remote-controller/internal/tg-bot/utils"
 	"github.com/c0dered273/automation-remote-controller/pkg/collections"
 	pkgmodel "github.com/c0dered273/automation-remote-controller/pkg/model"
 	tgbotapi "github.com/go-telegram-bot-api/telegram-bot-api/v5"
@@ -172,7 +171,7 @@ func LampMenuHandler(ctx context.Context, logger zerolog.Logger, userService use
 		username := update.CallbackQuery.From.UserName
 		msg := tgbotapi.NewMessage(update.CallbackQuery.Message.Chat.ID, "Error: unknown")
 		if userService.IsUserExists(ctx, username) {
-			reqParams := utils.ParseReqParams(update.CallbackQuery.Data)
+			reqParams := ParseReqParams(update.CallbackQuery.Data)
 			lampID := reqParams["lampID"][0]
 
 			var sb strings.Builder
@@ -213,7 +212,7 @@ func LampSwitchHandler(ctx context.Context, logger zerolog.Logger, userService u
 		username := update.CallbackQuery.From.UserName
 		msg := tgbotapi.NewMessage(update.CallbackQuery.Message.Chat.ID, "Error: unknown")
 		if userService.IsUserExists(ctx, username) {
-			reqParams := utils.ParseReqParams(update.CallbackQuery.Data)
+			reqParams := ParseReqParams(update.CallbackQuery.Data)
 			lampID := reqParams["lampID"][0]
 			action := reqParams["action"][0]
 

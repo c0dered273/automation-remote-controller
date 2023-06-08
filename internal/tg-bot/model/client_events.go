@@ -57,17 +57,18 @@ func (e *ClientEvents) ContinuousReadAndNotify() {
 				e.Err <- e.ctx.Err()
 				return
 			case recv := <-e.Recv:
-				if e.IsNotify {
-					switch recv.E.Action {
-					case proto.Action_NOTIFICATION:
-						var notifyEvent pkgmodel.NotifyEvent
-						err := json.Unmarshal(recv.E.Payload, &notifyEvent)
-						if err != nil {
-							e.Err <- fmt.Errorf("client events: failed unmarshal event, %w", err)
-							return
-						}
-						e.botNotify <- NewNotification(e.chatID, notifyEvent.Text)
+				if !e.IsNotify {
+					continue
+				}
+				switch recv.E.Action {
+				case proto.Action_NOTIFICATION:
+					var notifyEvent pkgmodel.NotifyEvent
+					err := json.Unmarshal(recv.E.Payload, &notifyEvent)
+					if err != nil {
+						e.Err <- fmt.Errorf("client events: failed unmarshal event, %w", err)
+						return
 					}
+					e.botNotify <- NewNotification(e.chatID, notifyEvent.Text)
 				}
 			}
 		}

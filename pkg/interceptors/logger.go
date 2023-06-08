@@ -2,7 +2,6 @@ package interceptors
 
 import (
 	"context"
-	"fmt"
 
 	"github.com/grpc-ecosystem/go-grpc-middleware/v2/interceptors/logging"
 	"github.com/rs/zerolog"
@@ -22,7 +21,7 @@ func InterceptorLogger(l zerolog.Logger) logging.Logger {
 		case logging.LevelError:
 			l.Error().Msg(msg)
 		default:
-			panic(fmt.Sprintf("unknown level %v", lvl))
+			l.Info().Str("logging error", "failed to parse logging level").Msg(msg)
 		}
 	})
 }

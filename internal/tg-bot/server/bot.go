@@ -4,8 +4,8 @@ import (
 	"context"
 	"encoding/json"
 
+	"github.com/c0dered273/automation-remote-controller/internal/tg-bot/handlers"
 	"github.com/c0dered273/automation-remote-controller/internal/tg-bot/model"
-	"github.com/c0dered273/automation-remote-controller/internal/tg-bot/utils"
 	tgbotapi "github.com/go-telegram-bot-api/telegram-bot-api/v5"
 	"github.com/rs/zerolog"
 )
@@ -108,7 +108,7 @@ func (h *DefaultMessageHandler) ServeBotMessage(update tgbotapi.Update, botApi *
 			return
 		}
 	} else if update.CallbackQuery != nil {
-		handlerName := utils.ParseReqHandler(update.CallbackQuery.Data)
+		handlerName := handlers.ParseReqHandler(update.CallbackQuery.Data)
 		handler, ok := h.callbacks[handlerName]
 		if ok {
 			handler(update, botApi)
@@ -120,16 +120,18 @@ func (h *DefaultMessageHandler) ServeBotMessage(update tgbotapi.Update, botApi *
 
 // Message регистрирует обработчик для команды типа message
 func (h *DefaultMessageHandler) Message(text string, handler func(update tgbotapi.Update, botApi *tgbotapi.BotAPI)) {
-	if len(text) > 0 {
-		h.messages[text] = handler
+	if len(text) == 0 {
+		h.logger.Fatal().Msg("message handler: command text is empty")
 	}
+	h.messages[text] = handler
 }
 
 // Callback регистрирует обработчик для команды типа callback
 func (h *DefaultMessageHandler) Callback(handlerName string, handler func(update tgbotapi.Update, botApi *tgbotapi.BotAPI)) {
-	if len(handlerName) > 0 {
-		h.callbacks[handlerName] = handler
+	if len(handlerName) == 0 {
+		h.logger.Fatal().Msg("message handler: handler name is empty")
 	}
+	h.callbacks[handlerName] = handler
 }
 
 // Unknown регистрирует обработчик для неизвестной команды

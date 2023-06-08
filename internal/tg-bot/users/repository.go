@@ -28,7 +28,7 @@ type SQLUserRepo struct {
 }
 
 func (r SQLUserRepo) UpdateChatIDByTGUser(ctx context.Context, tgName string, chatID int64) error {
-	sqlQuery := `UPDATE users SET chat_id = $2 WHERE tg_user=$1`
+	const sqlQuery = `UPDATE users SET chat_id = $2 WHERE tg_user=$1`
 
 	res, err := r.db.ExecContext(ctx, sqlQuery, tgName, chatID)
 	if err != nil {
@@ -43,7 +43,7 @@ func (r SQLUserRepo) UpdateChatIDByTGUser(ctx context.Context, tgName string, ch
 }
 
 func (r SQLUserRepo) UpdateNotificationByTGUser(ctx context.Context, tgName string, isEnabled bool) error {
-	sqlQuery := `UPDATE users SET notify_enabled = $2 WHERE tg_user=$1`
+	const sqlQuery = `UPDATE users SET notify_enabled = $2 WHERE tg_user=$1`
 
 	res, err := r.db.ExecContext(ctx, sqlQuery, tgName, isEnabled)
 	if err != nil {
@@ -58,7 +58,7 @@ func (r SQLUserRepo) UpdateNotificationByTGUser(ctx context.Context, tgName stri
 }
 
 func (r SQLUserRepo) FindUserByTGUser(ctx context.Context, tgUser string) (User, error) {
-	sqlQuery := "SELECT username, tg_user, chat_id, notify_enabled FROM users WHERE tg_user = $1"
+	const sqlQuery = "SELECT username, tg_user, chat_id, notify_enabled FROM users WHERE tg_user = $1"
 
 	user := User{}
 	err := r.db.GetContext(ctx, &user, sqlQuery, tgUser)
@@ -73,7 +73,7 @@ func (r SQLUserRepo) FindUserByTGUser(ctx context.Context, tgUser string) (User,
 }
 
 func (r SQLUserRepo) IsUserExists(ctx context.Context, tgUser string) (bool, error) {
-	sqlQuery := "SELECT 1 FROM users WHERE tg_user = $1"
+	const sqlQuery = "SELECT 1 FROM users WHERE tg_user = $1"
 
 	var result int
 	err := r.db.GetContext(ctx, &result, sqlQuery, tgUser)
@@ -84,7 +84,7 @@ func (r SQLUserRepo) IsUserExists(ctx context.Context, tgUser string) (bool, err
 }
 
 func (r SQLUserRepo) FindUserByClientID(ctx context.Context, clientID string) (User, error) {
-	sqlQuery := "SELECT username, tg_user, chat_id, notify_enabled FROM users u JOIN clients c ON u.id = c.user_id WHERE c.uuid = $1"
+	const sqlQuery = "SELECT username, tg_user, chat_id, notify_enabled FROM users u JOIN clients c ON u.id = c.user_id WHERE c.uuid = $1"
 
 	user := User{}
 	err := r.db.GetContext(ctx, &user, sqlQuery, clientID)
