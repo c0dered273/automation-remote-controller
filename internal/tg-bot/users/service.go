@@ -1,6 +1,11 @@
 package users
 
-import "context"
+import (
+	"context"
+
+	"github.com/c0dered273/automation-remote-controller/pkg/collections"
+	tgbotapi "github.com/go-telegram-bot-api/telegram-bot-api/v5"
+)
 
 // UserService сервис обрабатывает запросы с пользователями
 type UserService interface {
@@ -14,10 +19,13 @@ type UserService interface {
 	IsUserExists(ctx context.Context, tgName string) bool
 	// FindUserByClientID поиск пользователя по идентификатору клиентского приложения
 	FindUserByClientID(ctx context.Context, clientID string) (User, error)
+	SetUserLastMessage(tgName string, message tgbotapi.Message)
+	GetUserLastMessage(tgName string) (tgbotapi.Message, bool)
 }
 
 type UserServiceImpl struct {
-	userRepo UserRepository
+	userRepo    UserRepository
+	userLastMsg *collections.ConcurrentMap[string, tgbotapi.Message]
 }
 
 func (u UserServiceImpl) SetNotification(ctx context.Context, tgName string, flag bool) error {
@@ -57,9 +65,18 @@ func (u UserServiceImpl) FindUserByClientID(ctx context.Context, clientID string
 	return user, err
 }
 
+func (u UserServiceImpl) SetUserLastMessage(tgName string, message tgbotapi.Message) {
+	u.userLastMsg.Put(tgName, message)
+}
+
+func (u UserServiceImpl) GetUserLastMessage(tgName string) (tgbotapi.Message, bool) {
+	return u.userLastMsg.Get(tgName)
+}
+
 // NewUserService создает сервис пользователей
 func NewUserService(userRepo UserRepository) UserServiceImpl {
 	return UserServiceImpl{
-		userRepo: userRepo,
+		userRepo:    userRepo,
+		userLastMsg: collections.NewConcurrentMap[string, tgbotapi.Message](),
 	}
 }

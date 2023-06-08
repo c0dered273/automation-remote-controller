@@ -109,10 +109,18 @@ func (h *DefaultMessageHandler) ServeBotMessage(update tgbotapi.Update, botApi *
 		}
 	} else if update.CallbackQuery != nil {
 		handlerName := handlers.ParseReqHandler(update.CallbackQuery.Data)
-		handler, ok := h.callbacks[handlerName]
-		if ok {
-			handler(update, botApi)
-			return
+		if len(handlerName) != 0 {
+			handler, ok := h.callbacks[handlerName]
+			if ok {
+				handler(update, botApi)
+				return
+			}
+		} else {
+			handler, ok := h.messages[update.CallbackQuery.Data]
+			if ok {
+				handler(update, botApi)
+				return
+			}
 		}
 	}
 	h.unknownRoute(update, botApi)

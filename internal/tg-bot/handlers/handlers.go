@@ -23,9 +23,23 @@ const (
 // MenuHandler /menu - главное меню
 func MenuHandler(ctx context.Context, logger zerolog.Logger, userService users.UserService) func(update tgbotapi.Update, botApi *tgbotapi.BotAPI) {
 	return func(update tgbotapi.Update, botApi *tgbotapi.BotAPI) {
-		username := update.Message.From.UserName
-		msg := tgbotapi.NewMessage(update.Message.Chat.ID, "Error: unknown")
-		if err := userService.SetUserChatID(ctx, username, update.Message.Chat.ID); err != nil {
+		var chatID int64
+		var username string
+		if update.Message == nil {
+			chatID = update.CallbackQuery.Message.Chat.ID
+			username = update.CallbackQuery.From.UserName
+		} else {
+			chatID = update.Message.Chat.ID
+			username = update.Message.From.UserName
+		}
+
+		if prevMsg, ok := userService.GetUserLastMessage(username); ok {
+			delMsg := tgbotapi.NewDeleteMessage(chatID, prevMsg.MessageID)
+			_, _ = botApi.Send(delMsg)
+		}
+
+		msg := tgbotapi.NewMessage(chatID, "Error: unknown")
+		if err := userService.SetUserChatID(ctx, username, chatID); err != nil {
 			logger.Error().Err(err).Send()
 			msg.Text = "Error: unknown user"
 		} else {
@@ -39,9 +53,11 @@ func MenuHandler(ctx context.Context, logger zerolog.Logger, userService users.U
 			msg.ReplyMarkup = inlineMainMenu
 		}
 
-		if _, err := botApi.Send(msg); err != nil {
+		sent, err := botApi.Send(msg)
+		if err != nil {
 			logger.Fatal().Err(err).Send()
 		}
+		userService.SetUserLastMessage(username, sent)
 	}
 }
 
@@ -115,9 +131,11 @@ func StatusHandler(ctx context.Context, logger zerolog.Logger, userService users
 		} else {
 			msg.Text = "Error: unknown user"
 		}
-		if _, err := botApi.Send(msg); err != nil {
+		sent, err := botApi.Send(msg)
+		if err != nil {
 			logger.Fatal().Err(err).Send()
 		}
+		userService.SetUserLastMessage(username, sent)
 	}
 }
 
@@ -130,6 +148,11 @@ func LightControlHandler(ctx context.Context, logger zerolog.Logger, userService
 		}
 
 		username := update.CallbackQuery.From.UserName
+		if prevMsg, ok := userService.GetUserLastMessage(username); ok {
+			delMsg := tgbotapi.NewDeleteMessage(update.CallbackQuery.Message.Chat.ID, prevMsg.MessageID)
+			_, _ = botApi.Send(delMsg)
+		}
+
 		msg := tgbotapi.NewMessage(update.CallbackQuery.Message.Chat.ID, "Error: unknown")
 		if userService.IsUserExists(ctx, username) {
 			lamp01 := "Lamp001"
@@ -146,6 +169,9 @@ func LightControlHandler(ctx context.Context, logger zerolog.Logger, userService
 				tgbotapi.NewInlineKeyboardRow(
 					tgbotapi.NewInlineKeyboardButtonData(fmt.Sprintf("\xF0\x9F\x92\xA1%s", lamp03), fmt.Sprintf("handler:lampMenu?lampID=%s", lamp03)),
 				),
+				tgbotapi.NewInlineKeyboardRow(
+					tgbotapi.NewInlineKeyboardButtonData("Главное меню", "/menu"),
+				),
 			)
 			msg.Text = "Освещение"
 			msg.ReplyMarkup = inlineButtons
@@ -153,9 +179,11 @@ func LightControlHandler(ctx context.Context, logger zerolog.Logger, userService
 			msg.Text = "Error: unknown user"
 		}
 
-		if _, err := botApi.Send(msg); err != nil {
+		sent, err := botApi.Send(msg)
+		if err != nil {
 			logger.Fatal().Err(err).Send()
 		}
+		userService.SetUserLastMessage(username, sent)
 	}
 }
 
@@ -169,6 +197,11 @@ func LampMenuHandler(ctx context.Context, logger zerolog.Logger, userService use
 		}
 
 		username := update.CallbackQuery.From.UserName
+		if prevMsg, ok := userService.GetUserLastMessage(username); ok {
+			delMsg := tgbotapi.NewDeleteMessage(update.CallbackQuery.Message.Chat.ID, prevMsg.MessageID)
+			_, _ = botApi.Send(delMsg)
+		}
+
 		msg := tgbotapi.NewMessage(update.CallbackQuery.Message.Chat.ID, "Error: unknown")
 		if userService.IsUserExists(ctx, username) {
 			reqParams := ParseReqParams(update.CallbackQuery.Data)
@@ -193,9 +226,11 @@ func LampMenuHandler(ctx context.Context, logger zerolog.Logger, userService use
 		} else {
 			msg.Text = "Error: unknown user"
 		}
-		if _, err := botApi.Send(msg); err != nil {
+		sent, err := botApi.Send(msg)
+		if err != nil {
 			logger.Fatal().Err(err).Send()
 		}
+		userService.SetUserLastMessage(username, sent)
 	}
 }
 
@@ -210,6 +245,11 @@ func LampSwitchHandler(ctx context.Context, logger zerolog.Logger, userService u
 		}
 
 		username := update.CallbackQuery.From.UserName
+		if prevMsg, ok := userService.GetUserLastMessage(username); ok {
+			delMsg := tgbotapi.NewDeleteMessage(update.CallbackQuery.Message.Chat.ID, prevMsg.MessageID)
+			_, _ = botApi.Send(delMsg)
+		}
+
 		msg := tgbotapi.NewMessage(update.CallbackQuery.Message.Chat.ID, "Error: unknown")
 		if userService.IsUserExists(ctx, username) {
 			reqParams := ParseReqParams(update.CallbackQuery.Data)
@@ -248,8 +288,10 @@ func LampSwitchHandler(ctx context.Context, logger zerolog.Logger, userService u
 		} else {
 			msg.Text = "Error: unknown user"
 		}
-		if _, err := botApi.Send(msg); err != nil {
+		sent, err := botApi.Send(msg)
+		if err != nil {
 			logger.Fatal().Err(err).Send()
 		}
+		userService.SetUserLastMessage(username, sent)
 	}
 }
