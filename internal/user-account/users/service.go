@@ -5,7 +5,7 @@ import (
 	"fmt"
 	"time"
 
-	"github.com/c0dered273/automation-remote-controller/internal/user-account/auth"
+	"github.com/c0dered273/automation-remote-controller/pkg/auth"
 )
 
 // UserService сервис обрабатывает запросы с пользователями

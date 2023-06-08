@@ -6,6 +6,8 @@ CREATE TABLE IF NOT EXISTS users
     username varchar(32) UNIQUE NOT NULL,
     password varchar(72)        NOT NULL,
     tg_user  varchar(32) UNIQUE NOT NULL,
+    chat_id BIGINT UNIQUE,
+    notify_enabled boolean NOT NULL,
     PRIMARY KEY (id)
 );
 

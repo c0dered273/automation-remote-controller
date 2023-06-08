@@ -4,13 +4,14 @@ import (
 	"os"
 	"time"
 
-	"github.com/c0dered273/automation-remote-controller/internal/common/loggers"
-	"github.com/c0dered273/automation-remote-controller/internal/common/validators"
-	"github.com/c0dered273/automation-remote-controller/internal/user-account/auth"
 	"github.com/c0dered273/automation-remote-controller/internal/user-account/clients"
 	"github.com/c0dered273/automation-remote-controller/internal/user-account/configs"
 	"github.com/c0dered273/automation-remote-controller/internal/user-account/storage"
 	"github.com/c0dered273/automation-remote-controller/internal/user-account/users"
+	"github.com/c0dered273/automation-remote-controller/pkg/auth"
+	"github.com/c0dered273/automation-remote-controller/pkg/loggers"
+	"github.com/c0dered273/automation-remote-controller/pkg/validators"
+	"github.com/jmoiron/sqlx"
 	echojwt "github.com/labstack/echo-jwt/v4"
 	"github.com/labstack/echo/v4"
 	"github.com/labstack/echo/v4/middleware"
@@ -32,23 +33,23 @@ type Services struct {
 }
 
 // NewServices настраивает сервисы
-func NewServices(config *configs.UserAccountConfig, logger zerolog.Logger) Services {
+func NewServices(config *configs.UserAccountConfig, logger zerolog.Logger) (Services, *sqlx.DB) {
 	// Users
 	db, err := storage.NewConnection(config.DatabaseUri)
 	if err != nil {
 		logger.Fatal().Err(err).Msg("user_account: db connection error")
 	}
-	userRepo := users.NewUserRepo(db)
+	userRepo := users.NewRepo(db)
 	userService := users.NewUserService(userRepo)
 
 	// Clients
-	clientRepo := clients.NewClientRepo(db)
+	clientRepo := clients.NewRepo(db)
 	clientService := clients.NewClientService(clientRepo, userRepo, config.Client)
 
 	return Services{
 		UserService:   userService,
 		ClientService: clientService,
-	}
+	}, db
 }
 
 // ReadConfig читает и валидирует конфигурацию приложения

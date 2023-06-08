@@ -18,3 +18,4 @@ linters:
     - gofmt
     - gosec
     - bidichk
+    - gocritic

@@ -5,14 +5,14 @@ import (
 	"fmt"
 	"net/http"
 
-	"github.com/c0dered273/automation-remote-controller/internal/user-account/auth"
 	"github.com/c0dered273/automation-remote-controller/internal/user-account/repository"
+	"github.com/c0dered273/automation-remote-controller/pkg/auth"
 	"github.com/golang-jwt/jwt/v5"
 	"github.com/labstack/echo/v4"
 )
 
 var (
-	certFileName = "clientCert.pem"
+	certFileName = "client-cert.pem"
 )
 
 // RegisterNewClient godoc

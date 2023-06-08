@@ -21,8 +21,8 @@ import (
 )
 
 var (
-	ownerOID             = asn1.ObjectIdentifier([]int{2, 5, 4, 32})
-	x500UniqueIdentifier = asn1.ObjectIdentifier([]int{2, 5, 4, 45})
+	OwnerOID             = asn1.ObjectIdentifier([]int{2, 5, 4, 32})
+	X500UniqueIdentifier = asn1.ObjectIdentifier([]int{2, 5, 4, 45})
 )
 
 // JwtCustomClaims параметры которые хранятся jwt
@@ -72,7 +72,7 @@ func GetJWTConfig(secret string) echojwt.Config {
 // возвращает pem блоки с сертификатом X.509 v3 и rsa приватным ключом в кодировке PKCS #8
 // также в сертификат добавлены два объекта:
 // owner - содержит имя пользователя telegram, которое использует хозяин клиентского приложения
-// x500UniqueIdentifier - уникальный идентификатор клиентского приложения
+// X500UniqueIdentifier - уникальный идентификатор клиентского приложения
 func GenerateCert(
 	caKeyPair CertKeyPair,
 	ownerName string,
@@ -96,11 +96,11 @@ func GenerateCert(
 			Locality:     []string{"Moscow"},
 			ExtraNames: []pkix.AttributeTypeAndValue{
 				{
-					Type:  ownerOID,
+					Type:  OwnerOID,
 					Value: ownerName,
 				},
 				{
-					Type:  x500UniqueIdentifier,
+					Type:  X500UniqueIdentifier,
 					Value: clientID,
 				},
 			},

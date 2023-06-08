@@ -25,6 +25,6 @@ go.work
 .vscode
 
 # Binaries
-bin/remote-control-api/
-bin/rc-tg-bot/
+bin/remote-control-client
+bin/rc-tg-bot
 bin/user-account-api

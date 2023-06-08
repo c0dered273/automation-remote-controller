@@ -24,8 +24,8 @@ type SQLUserRepo struct {
 }
 
 func (r SQLUserRepo) SaveUser(ctx context.Context, user User) error {
-	sqlQuery := `INSERT INTO users(username, password, tg_user) 
-			VALUES(:username, crypt(:password, gen_salt('bf')), :tg_user) 
+	const sqlQuery = `INSERT INTO users(username, password, tg_user, notify_enabled) 
+			VALUES(:username, crypt(:password, gen_salt('bf')), :tg_user, true) 
 			ON CONFLICT DO NOTHING`
 
 	res, err := r.db.NamedExecContext(ctx, sqlQuery, user)
@@ -41,7 +41,7 @@ func (r SQLUserRepo) SaveUser(ctx context.Context, user User) error {
 }
 
 func (r SQLUserRepo) FindByNameAndPassword(ctx context.Context, name string, password string) (User, error) {
-	sqlQuery := "SELECT username, tg_user FROM users WHERE username=$1 AND password=crypt($2, password)"
+	const sqlQuery = "SELECT username, tg_user FROM users WHERE username=$1 AND password=crypt($2, password)"
 
 	user := User{}
 	err := r.db.GetContext(ctx, &user, sqlQuery, name, password)
@@ -56,7 +56,7 @@ func (r SQLUserRepo) FindByNameAndPassword(ctx context.Context, name string, pas
 }
 
 func (r SQLUserRepo) FindTGNameByUsername(ctx context.Context, name string) (string, error) {
-	sqlQuery := `SELECT tg_user FROM users WHERE username=$1`
+	const sqlQuery = `SELECT tg_user FROM users WHERE username=$1`
 
 	var tgName string
 	err := r.db.GetContext(ctx, &tgName, sqlQuery, name)
@@ -70,7 +70,7 @@ func (r SQLUserRepo) FindTGNameByUsername(ctx context.Context, name string) (str
 	return tgName, nil
 }
 
-func NewUserRepo(db *sqlx.DB) SQLUserRepo {
+func NewRepo(db *sqlx.DB) SQLUserRepo {
 	return SQLUserRepo{
 		db: db,
 	}

@@ -18,7 +18,7 @@ type SQLClientRepo struct {
 }
 
 func (r SQLClientRepo) SaveClient(ctx context.Context, client Client) error {
-	sqlQuery := `INSERT INTO clients(name, uuid, user_id) 
+	const sqlQuery = `INSERT INTO clients(name, uuid, user_id) 
 					VALUES(:name, :uuid, (SELECT id FROM users u WHERE u.username=:username))`
 
 	_, err := r.db.NamedExecContext(ctx, sqlQuery, client)
@@ -29,7 +29,7 @@ func (r SQLClientRepo) SaveClient(ctx context.Context, client Client) error {
 	return nil
 }
 
-func NewClientRepo(db *sqlx.DB) SQLClientRepo {
+func NewRepo(db *sqlx.DB) SQLClientRepo {
 	return SQLClientRepo{
 		db: db,
 	}
