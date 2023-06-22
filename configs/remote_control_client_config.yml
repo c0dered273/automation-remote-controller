@@ -1,7 +1,7 @@
 name: "remote-control-client"
 plc_uri: "modbus-tcp://10.0.1.10?unit-identifier=1&request-timeout=5000"
 
-server_addr: "localhost:8080"
+server_addr: "localhost:8081"
 ca_cert: "cert/ca-cert.pem"
 client_cert: "cert/client-cert.pem"
 

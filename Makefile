@@ -77,7 +77,7 @@ install: docker-build docker-release
 docker-build: ## Use the dockerfile to build the container
 	#docker build --rm --tag $(PROJECT_NAME) .
 	docker build --rm --tag rc-tg-bot -f ./docker/rc-tg-bot/Dockerfile .
-	docker build --rm --memory=1024m --tag remote-control-client -f ./docker/remote-control-client/Dockerfile .
+	docker build --rm --memory=2048m --tag remote-control-client -f ./docker/remote-control-client/Dockerfile .
 	docker build --rm --tag user-account-api -f ./docker/user-account-api/Dockerfile .
 
 .PHONY: docker-release

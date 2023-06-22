@@ -1,6 +1,6 @@
 # syntax=docker/dockerfile:1
 
-FROM golang:1.20-bookworm AS builder
+FROM --platform=linux/arm64/v8 golang:1.20-bookworm AS builder
 WORKDIR /build
 RUN apt update && apt install -y --no-install-recommends libpcap-dev
 
@@ -8,7 +8,7 @@ COPY . .
 RUN go mod download
 RUN go build -v -o remote-control-client /build/cmd/remote-control-client/main.go
 
-FROM debian:bookworm
+FROM --platform=linux/arm64/v8 debian:bookworm
 WORKDIR /
 RUN apt update && apt install -y --no-install-recommends libpcap-dev
 COPY --from=builder /build/remote-control-client /remote-control-client
